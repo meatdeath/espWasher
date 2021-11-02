@@ -14,23 +14,28 @@
 
 #define LCD_CD      25
 #define LCD_CS      33
-#define SCL         27
-#define SDA         26
+#define LCD_SCL     27
+#define LCD_SDA     26
+
+#define LCD_SET_CD(level)   digitalWrite(LCD_CD,level)
+#define LCD_SET_SDA(level)  digitalWrite(LCD_SDA,level)
+#define LCD_SET_SCL(level)  digitalWrite(LCD_SCL,level)
+#define LCD_SET_CS(level)   digitalWrite(LCD_CS,level)
 
 //*****************�����б�******************************************
 
 #define delay_ms delay
 
-void wr_ctrl(uchar ctrlcode);
-void wr_data(uchar disdata);
-void setcursor(uchar x,uchar y);
-void clr_screen(void);
-void byte_extend(uchar dat);
-void byte_extend_6(uchar dat);
-void byte_extend_ch(uchar dat);				
-void byte_extend_hz(uchar dat);				
-void one_word(uchar x,uchar y,uchar *Lib,uchar ch_num,uchar widthw);
-void dis_word(uchar x,uchar y,uchar *str,uchar ch8_16);
+void lcd_wr_ctrl(uint8_t ctrlcode);
+void lcd_wr_data(uint8_t disdata);
+void lcd_setcursor(uint8_t x, uint8_t y);
+void lcd_clr_screen(void);
+void lcd_byte_extend(uint8_t dat);
+void lcd_byte_extend_6(uint8_t dat);
+void lcd_byte_extend_ch(uint8_t dat);				
+void lcd_byte_extend_hz(uint8_t dat);				
+void lcd_one_word(uint8_t x, uint8_t y, uint8_t *Lib, uint8_t ch_num, uint8_t widthw);
+void lcd_dis_word(uint8_t x, uint8_t y, uint8_t *str, uint8_t ch8_16);
 void lcd_init(void);
 void lcd_main(void);
 
@@ -64,103 +69,91 @@ uchar STR_24064_7[] =
 uint dis_col,dis_line;
 bool ch_68;
 
-//*******************************************************************
-//����12MHz,��ʱ1ms * t
-//*******************************************************************
-
-// void delay_ms(uint t)
-// 	{  
-// 		uint i,j;
-//     	for(i=0;i<t;i++)
-// 		for(j=0;j<125;j++)					//��ʱ125x8us=1ms
-// 		{;}
-// 	}
 
 //*******************************************************************
-//��һ���ֽڳ���
+// Send bits
 //*******************************************************************
 
-void SendBit(uchar dat,uchar bitcnt)
-	{
- 		uchar i;
- 		for(i=0;i<bitcnt;i++)
- 		{
-  			
-            digitalWrite(SCL,LOW);//SCL = 0; 
-  			if(( dat & 0x80 ) == 0)
-  			    digitalWrite(SDA,LOW);//SDA = 0;
-  			else
-  			    digitalWrite(SDA,HIGH);//SDA = 1; 
-  			digitalWrite(SCL,HIGH);//SCL = 1; 
-  			dat=dat<<1;  
- 		}
-	}
+void lcd_SendBit(uint8_t dat, uint8_t bitcnt)
+{
+    uint8_t i;
+    for( i = 0; i < bitcnt; i++ )
+    {
+        LCD_SET_SCL(LOW); 
+        if( (dat&0x80) == 0 )
+            LCD_SET_SDA(LOW);
+        else
+            LCD_SET_SDA(HIGH); 
+        LCD_SET_SCL(HIGH); 
+        dat = dat<<1;  
+    }
+}
 
 //*******************************************************************
-//дָ�����
+//д Write lcd control word
 //*******************************************************************
 
-void wr_ctrl(uchar ctrlcode) 
-	{
-     	digitalWrite(LCD_CS,LOW);//LCD_CS = 0;
-     	digitalWrite(LCD_CD,LOW);//LCD_CD = 0;
-        SendBit(ctrlcode,8);
-        digitalWrite(LCD_CD,HIGH);//LCD_CD = 1;
-        digitalWrite(LCD_CS,HIGH);//LCD_CS = 1;
-	}
+void lcd_wr_ctrl(uint8_t ctrlcode) 
+{
+    LCD_SET_CS(LOW);
+    LCD_SET_CD(LOW);
+    lcd_SendBit(ctrlcode,8);
+    LCD_SET_CD(HIGH);
+    LCD_SET_CS(HIGH);
+}
 
 //*******************************************************************
-//д���ݳ���
+// Write lcd data word
 //******************************************************************* 
 
-void wr_data(uchar dispdata) 
-	{
-     	digitalWrite(LCD_CS,LOW);//LCD_CS = 0;
-     	digitalWrite(LCD_CD,HIGH);//LCD_CD = 1;
-        SendBit(dispdata,8);
-	    digitalWrite(LCD_CD,LOW);//LCD_CD = 0;
-        digitalWrite(LCD_CS,HIGH);//LCD_CS = 1;
-	}
+void wr_data(uint8_t dispdata) 
+{
+    digitalWrite(LCD_CS,LOW);//LCD_CS = 0;
+    digitalWrite(LCD_CD,HIGH);//LCD_CD = 1;
+    lcd_SendBit(dispdata,8);
+    digitalWrite(LCD_CD,LOW);//LCD_CD = 0;
+    digitalWrite(LCD_CS,HIGH);//LCD_CS = 1;
+}
 
 //*******************************************************************
-//set cursor address
+// set cursor address
 //*******************************************************************
 
-void setcursor(uchar x,uchar y)
+void lcd_setcursor(uint8_t x, uint8_t y)
 	{  	
-   		wr_ctrl(x&0x0F|0x60);	        // row address LSB
-		wr_ctrl(x>>4|0x70);		        // row address MSB  
-		wr_ctrl(y>>4|0x10);				// column address MSB
-		wr_ctrl(y&0x0F|0x00);			// column address LSB
+   		lcd_wr_ctrl((x&0x0F)|0x60);	        // row address LSB
+		lcd_wr_ctrl((x>>4)|0x70);		        // row address MSB  
+		lcd_wr_ctrl((y>>4)|0x10);				// column address MSB
+		lcd_wr_ctrl((y&0x0F)|0x00);			// column address LSB
 	}
 
 //*******************************************************************
-//������ȫ��Ļ����		
+// Clear LCD screen		
 //*******************************************************************
 
-void clr_screen(void)
-	{
-		uint x,y;						
-						
-  		for(x=0;x<dis_line;x++)			// write dis_line row
-		{
-			setcursor(x,0);				// set cursor
-   			for(y=0;y<dis_col/2;y++) 	// write dis_col/2 column 
-			{
-				wr_data(0x00);			// write display data 0x00
-				wr_data(0x00);
-                wr_data(0x00);				
-			}
-		}
-	}
+void lcd_clr_screen(void)
+{
+    uint16_t x, y;						
+                    
+    for( x = 0; x < dis_line; x++ )			// write dis_line row
+    {
+        lcd_setcursor( x, 0 );				// set cursor
+        for( y = 0; y < dis_col/2; y++ ) 	// write dis_col/2 column 
+        {
+            lcd_wr_data(0x00);			// write display data 0x00
+            lcd_wr_data(0x00);
+            lcd_wr_data(0x00);				
+        }
+    }
+}
 
 //*******************************************************************
-//��ʾ�߿��Ӻ���
+// Draw square
 //*******************************************************************
 
 void dis_square(void)
 	{
-		uint  x,y;
+		uint16_t  x,y;
 
 		clr_screen();
         setcursor(0,0);					// set cursor
@@ -329,9 +322,9 @@ void one_word(uchar x,uchar y,uchar *Lib,uchar ch_num,uchar widthw)
                     if(ch_68==0)byte_extend_6(Lib[xi]);	//д���һ�ֽ�
                     else
                     {
-                        wr_ctrl(0xd6);
-                        byte_extend_ch(Lib[xi]);	//д���һ�ֽ�
-                       	wr_ctrl(0xd5);
+                        lcd_wr_ctrl(0xd6);
+                        lcd_byte_extend_ch(Lib[xi]);	//д���һ�ֽ�
+                       	lcd_wr_ctrl(0xd5);
                     }
                 }	
 				else byte_extend(Lib[xi]);	//д���һ�ֽ�
@@ -458,13 +451,13 @@ void set_contrast(uchar flag)
 void lcd_init(void)					    
 	{
         pinMode(LCD_CD,OUTPUT);
-        pinMode(SDA,OUTPUT);
-        pinMode(SCL,OUTPUT);
+        pinMode(LCD_SDA,OUTPUT);
+        pinMode(LCD_SCL,OUTPUT);
         pinMode(LCD_CS,OUTPUT);
 
         digitalWrite(LCD_CD,HIGH);
-        digitalWrite(SDA,HIGH);
-        digitalWrite(SCL,HIGH);
+        digitalWrite(LCD_SDA,HIGH);
+        digitalWrite(LCD_SCL,HIGH);
         digitalWrite(LCD_CS,HIGH);
 
 		delay_ms(150);
