@@ -562,6 +562,18 @@ void lcd_main(void)
 			lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
 			lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
 			lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
+			delay_ms(2000);
+			lcd_clr_screen();
+			for( int i = 107; i >= 0; i-- ) {
+				String clock_str = "";
+				clock_str += i/60;
+				clock_str += ":";
+				clock_str += i%60;
+				// char clock_str[10];
+				// sprintf( clock_str, "%d:%02d",i/60, i%60);
+				lcd_print_font(180,16,clock_str,&font[FONT_BIG_CLOCK],15,0);
+				deley_ms(1000);
+			}
 			while(1);
 
 
@@ -584,11 +596,11 @@ void lcd_points_flush( void );
 
 void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uint8_t fore_color, uint8_t back_color ) {
 	const char *str = string.c_str();
-	Serial.println("Codes -------------------------------");
+	//Serial.println("Codes -------------------------------");
 	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
 	// Serial.println("End ---------------------------------");
 	int str_len = string.length();
-	uint16_t ch_mask = 0;
+	uint64_t ch_mask = 0;
 	uint16_t x_coord = x;
 	for( int line = 0; line < font->rowsPerSymbol; line++ )
 	{
@@ -597,7 +609,7 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 		lcd_setcursor( y+line, x );
 		for( int i = 0; i < strlen(str); i++ ) 
 		{
-			const uint8_t *ch_data;
+			const uint8_t *symbol_data;
 			int correction = -font->firstCode;
 			if( str[i] == 208 ) // russian
 			{
@@ -615,23 +627,25 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 				Serial.printf("Symbol with '%c'(code=%d) has no description in font \"%s\"!\n", str[i], str[i], font->name);
 				continue; // dont display garbage
 			}
-			ch_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
+			symbol_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
 			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
-			if( (x_coord+(*ch_data)) < SCREEN_SIZE_X )
+			if( (x_coord+(*symbol_data)) < LG240644_SCREEN_SIZE_X )
 			{
-				for( uint8_t col = 0; col < *ch_data; col++ ) 
+				for( uint8_t col = 0; col < *symbol_data && col < font->colsMaxPerSymbol; col++ ) 
 				{
-					uint16_t ch_data_word = 0;
-					ch_data_word = ch_data[1+col*2+1];
-					ch_data_word <<= 8;
-					ch_data_word |= ch_data[1+col*2];
-					uint8_t color = (ch_data_word & ch_mask)?fore_color:back_color;
+					uint64_t symbol_column_word = 0;
+					for( int j = 0; j < font->bytesPerColumn; j++ )
+					{
+						symbol_column_word <<= 8;
+						symbol_column_word |= symbol_data[1 + col*font->bytesPerColumn + j];
+					}
+					uint8_t color = (symbol_column_word & ch_mask) ? fore_color : back_color;
 					
-					//Serial.printf("data_word=0x%04x, ch_mask=0x%04x, color=0x%x\r\n", ch_data_word, ch_mask, color );
+					//Serial.printf("data_word=0x%04x, ch_mask=0x%016x, color=0x%x\r\n", symbol_column_word, ch_mask, color );
 					lcd_point( color );
 				}
 				lcd_point( back_color ); // space between charters
-				x_coord += *ch_data + 1;
+				x_coord += *symbol_data + 1;
 				
 			} else {
 				break;
