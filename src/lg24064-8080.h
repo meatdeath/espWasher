@@ -29,16 +29,16 @@
 #define delay_ms delay
 
 //void delay_ms(uint);						// ��ʱ 1 ms
-void wr_ctrl(uchar ctrlcode);				// дָ��
-void wr_data(uchar disdata);				// д����
-void setcursor(uchar x,uchar y);
+void wr_ctrl(uint8_t ctrlcode);				// дָ��
+void wr_data(uint8_t disdata);				// д����
+void setcursor(uint8_t x,uint8_t y);
 void clr_screen(void);						// ����
-void byte_extend(uchar dat);
-void byte_extend_6(uchar dat);
-void byte_extend_ch(uchar dat);				
-void byte_extend_hz(uchar dat);				
-void one_word(uchar x,uchar y,uchar *Lib,uchar ch_num,uchar widthw);
-void dis_word(uchar x,uchar y,uchar *str,uchar ch8_16);
+void byte_extend(uint8_t dat);
+void byte_extend_6(uint8_t dat);
+void byte_extend_ch(uint8_t dat);				
+void byte_extend_hz(uint8_t dat);				
+void one_word(uint8_t x,uint8_t y,uint8_t *Lib,uint8_t ch_num,uint8_t widthw);
+void dis_word(uint8_t x,uint8_t y,uint8_t *str,uint8_t ch8_16);
 void lcd_init(void);
 void lcd_main(void);
 

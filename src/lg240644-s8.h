@@ -2,6 +2,7 @@
 #define __LG240644_S8_H__
 
 #include "types.h"
+#include "Arduino.h"
 
 #define LCD_CMD_SET_COLUMN_ADDR_LSB                     0b00000000  // 0x00
 #define LCD_CMD_SET_COLUMN_ADDR_MSB                     0b00010000  // 0x10
@@ -44,15 +45,15 @@
 #define LCD_CMD_SET_MTP_WRITE_TIMER                     0b11110110  // 0xf6
 #define LCD_CMD_SET_MTP_READ_TIMER                      0b11110111  // 0xf7
 
-
 void lcd_setcursor(uchar x,uchar y);
-void lcd_clr_screen(void);						// ����
+void lcd_clr_screen(void);
 void lcd_byte_extend(uchar dat);
 void lcd_byte_extend_6(uchar dat);
-void lcd_byte_extend_ch(uchar dat);				
-void lcd_byte_extend_hz(uchar dat);				
+void lcd_byte_extend_ch(uchar dat);
+void lcd_byte_extend_hz(uchar dat);
 void lcd_one_word(uchar x,uchar y,uchar *Lib,uchar ch_num,uchar widthw);
 void lcd_dis_word(uchar x,uchar y,uchar *str,uchar ch8_16);
+void lcd_print_sys_12x14( uint8_t x, uint8_t y, String string, uint8_t fore_color=0xF, uint8_t back_color=0 );
 void lcd_init(void);
 void lcd_main(void);
 

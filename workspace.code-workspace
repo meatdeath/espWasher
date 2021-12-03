@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"name": "esp32",
+			"path": ".."
+		},
+		{
+			"name": "esp_washer",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"LG240644-S9.C": "cpp",
+			"LG240644-80.C": "cpp",
+			"LG240644-S8.C": "cpp"
+		}
+	}
+}

@@ -6,8 +6,8 @@
 //*******************************************************************/
 
 #include <Arduino.h>
-#include "lg240644-s8.h"
 #include "lg24064-fonts.h"
+#include "lg240644-s8.h"
 #include "types.h"
 
 //*************** �˿ڵ�ַ���� **************************************
@@ -37,7 +37,6 @@ void lcd_byte_extend_hz(uint8_t dat);
 void lcd_one_word(uint8_t x, uint8_t y, uint8_t *Lib, uint8_t ch_num, uint8_t widthw);
 void lcd_dis_word(uint8_t x, uint8_t y, uint8_t *str, uint8_t ch8_16);
 void lcd_init(void);
-void lcd_main(void);
 
 //******************�����б�*****************************************
 
@@ -106,7 +105,7 @@ void lcd_wr_ctrl(uint8_t ctrlcode)
 // Write lcd data word
 //******************************************************************* 
 
-void wr_data(uint8_t dispdata) 
+void lcd_wr_data(uint8_t dispdata) 
 {
     LCD_SET_CS(LOW);
     LCD_SET_CD(HIGH);
@@ -124,8 +123,8 @@ void lcd_setcursor(uint8_t x, uint8_t y)
 	lcd_wr_ctrl( LCD_CMD_SET_ROW_ADDR_LSB | (x&0xF) );	// lcd_wr_ctrl((x&0x0F)|0x60);	        // row address LSB
 	lcd_wr_ctrl( LCD_CMD_SET_ROW_ADDR_MSB | (x>>4) );	// lcd_wr_ctrl((x>>4)|0x70);		        // row address MSB 
 	
-	lcd_wr_ctrl( LCD_CMD_SET_COLUMN_ADDR_LSB | (y&0xF) );	// lcd_wr_ctrl(|0x00);			// column address LSB
 	lcd_wr_ctrl( LCD_CMD_SET_COLUMN_ADDR_MSB | (y>>4) );	// lcd_wr_ctrl(|0x10);				// column address MSB
+	lcd_wr_ctrl( LCD_CMD_SET_COLUMN_ADDR_LSB | (y&0xF) );	// lcd_wr_ctrl(|0x00);			// column address LSB
 }
 
 //*******************************************************************
@@ -326,7 +325,7 @@ void lcd_one_word( uint8_t x, uint8_t y, uint8_t *Lib, uint8_t ch_num, uint8_t w
 		row = x;
 		col = y;
 		xi = ch_num * widthw;	
-		if ( widthw= = 32 )					    
+		if ( widthw == 32 )					    
 		{
 			ch_x = 16;
 			ch_y = 2;
@@ -470,6 +469,7 @@ void lcd_dis_ch( uint8_t x, uint8_t y, uint8_t *str, uint8_t i )
 
 void lcd_set_contrast(uint8_t flag)
 {
+	lcd_wr_ctrl(LCD_CMD_SET_VBIAS_POTENTIOMETER);
 	switch(flag)
 	{
 	case 1: 
@@ -490,78 +490,250 @@ void lcd_set_contrast(uint8_t flag)
 //*******************************************************************
 
 void lcd_init(void)					    
-	{
-        pinMode(LCD_CD,OUTPUT);
-        pinMode(LCD_SDA,OUTPUT);
-        pinMode(LCD_SCL,OUTPUT);
-        pinMode(LCD_CS,OUTPUT);
+{
+	pinMode(LCD_CD,OUTPUT);
+	pinMode(LCD_SDA,OUTPUT);
+	pinMode(LCD_SCL,OUTPUT);
+	pinMode(LCD_CS,OUTPUT);
 
-        digitalWrite(LCD_CD,HIGH);
-        digitalWrite(LCD_SDA,HIGH);
-        digitalWrite(LCD_SCL,HIGH);
-        digitalWrite(LCD_CS,HIGH);
+	digitalWrite(LCD_CD,HIGH);
+	digitalWrite(LCD_SDA,HIGH);
+	digitalWrite(LCD_SCL,HIGH);
+	digitalWrite(LCD_CS,HIGH);
 
-		delay_ms(150);
-		lcd_wr_ctrl(0x26);			//set Temp.		
-		lcd_wr_ctrl(0xA2);			//set Line Rate	
-		lcd_wr_ctrl(0xD5);			//set color mode
-		lcd_wr_ctrl(0xE9);			//set LCD bias ratio
-		lcd_wr_ctrl(0x81);	        //Electronic volume mode set
-		lcd_set_contrast(1);        // contrast value
-        lcd_wr_ctrl(0x2A);			//set power control
-		lcd_wr_ctrl(0xF1);			//set COM end
-   		lcd_wr_ctrl(0x3F);			//64  Line
-		//lcd_wr_ctrl(0xD0);		//set color pattern	BGR
-		//lcd_wr_ctrl(0xc2);		//set MX=1, SEG output reverse direction		
-	 							//set MY=0, COM output normal direction
-		lcd_wr_ctrl(0xD1);		    //set color pattern	RGB
-		lcd_wr_ctrl(0xc4);		    //set MX=0, SEG output normal direction		
-	 							//set MY=1, COM output reverse direction
-		lcd_wr_ctrl(0x89);			//set RAM address control
-		lcd_wr_ctrl(0xAf);   		//set display enable  
-	}
+	delay_ms(150);
+	lcd_wr_ctrl(0x26);			//set Temp.		
+	lcd_wr_ctrl(0xA2);			//set Line Rate	
+	lcd_wr_ctrl(0xD5);			//set color mode
+	lcd_wr_ctrl(0xE9);			//set LCD bias ratio
+	
+	lcd_set_contrast(3);        // contrast value
+	lcd_wr_ctrl(0x2A);			//set power control
+	lcd_wr_ctrl(0xF1);			//set COM end
+	lcd_wr_ctrl(0x3F);			//64  Line
+	//lcd_wr_ctrl(0xD0);		//set color pattern	BGR
+	//lcd_wr_ctrl(0xc2);		//set MX=1, SEG output reverse direction		
+							//set MY=0, COM output normal direction
+	lcd_wr_ctrl(0xD1);		    //set color pattern	RGB
+	lcd_wr_ctrl(0xc4);		    //set MX=0, SEG output normal direction		
+							//set MY=1, COM output reverse direction
+	lcd_wr_ctrl(0x89);			//set RAM address control
+	lcd_wr_ctrl(0xAf);   		//set display enable  
+
+	dis_col = 80; 
+	dis_line = 64; 
+}
     	
 //*******************************************************************
 //������
 //*******************************************************************
 
-void lcd_main(void)						    
-	{
+void lcd_main(void)	
+{					    
 		//P0 = P1 = P2 = 0xFF;
-
-		dis_col = 80; 
-		dis_line = 64; 
-		
-		lcd_init();						//��ʼ��LCD
-		while(1)
-		{ 		
+						//��ʼ��LCD
 			lcd_clr_screen();
 			lcd_dis_square();
             lcd_dis_word(8,24,STR_24064_4,6*8);
             lcd_dis_word(24,16,STR_24064_5,8*8);
-			lcd_dis_word(40,16,STR1,16);			
+			lcd_dis_word(40,16,STR1,16);
             delay_ms(1000);
+			
+			// lcd_set_contrast(1);
+            // lcd_clr_screen();
+			// for( int y = 0; y < 12; y++ ) {
+			// 	lcd_setcursor( y, 0 );
+			// 	for( int intensity = 0; intensity < 0x10; intensity++ ) {
+			// 		for( int i = 0; i < 6; i++ ) {
+			// 			lcd_wr_data(intensity<<4|intensity);
+			// 		}
+			// 	}
+			// }
+			// delay(2000);
+		while(1)
+		{ 		
+			// lcd_clr_screen();
+			//lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
+			// lcd_print_sys_12x14( 5, 20, "TEST test 1234567890" );
+            // delay_ms(1000);
 			lcd_clr_screen();
-			lcd_dis_word(8,16,STR_24064_5,8*8);
-            lcd_dis_word(24,16,STR2,12);
-            lcd_dis_word(40,16,STR1,16);
-            delay_ms(800);
-            lcd_wr_ctrl(0xA7);
-			delay_ms(1000);
-            lcd_wr_ctrl(0xA6);
-            clr_screen();
-			lcd_dis_ch(1,0,STR_24064_6,8);
-			delay_ms(800);
-			lcd_set_contrast(2);
-			delay_ms(800);
-			lcd_set_contrast(3);
-			delay_ms(800);
-			lcd_set_contrast(4);
-			delay_ms(800);
-			lcd_set_contrast(5);
-			delay_ms(800);
-			lcd_set_contrast(1);
+			//lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
+			lcd_print_sys_12x14( 0, 0, "АБВ абв ABC abc" );
+			lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
+			lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
+			lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
+			while(1);
+
+
+			lcd_clr_screen();
+			lcd_dis_word(1,1,STR_24064_7,8*8);
+            delay_ms(5000);
+			lcd_clr_screen();
+			lcd_dis_word(1,1,STR_24064_7,6*8);
+            delay_ms(5000);
+			lcd_clr_screen();
+			lcd_dis_word(1,1,STR_24064_7,16*16);
+            delay_ms(5000);
 		}	
 	}
+
+//----------------------------------------------------------------------------------
+
+void lcd_point(uint8_t color);
+void lcd_points_flush( void );
+
+void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uint8_t fore_color, uint8_t back_color ) {
+	const char *str = string.c_str();
+	Serial.println("Codes -------------------------------");
+	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
+	// Serial.println("End ---------------------------------");
+	int str_len = string.length();
+	uint16_t ch_mask = 0;
+	uint16_t x_coord = x;
+	for( int line = 0; line < font->rowsPerSymbol; line++ )
+	{
+		//Serial.printf("Print line %d\r\n", line);
+		ch_mask = 1<<line;
+		lcd_setcursor( y+line, x );
+		for( int i = 0; i < strlen(str); i++ ) 
+		{
+			const uint8_t *ch_data;
+			int correction = -font->firstCode;
+			if( str[i] == 208 ) // russian
+			{
+				i++;
+				correction += -112;
+			}
+			else if( str[i] == 209 ) // russian
+			{
+				i++;
+				correction += 48;
+			}
+			int font_data_index = ((font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1) * (str[i] + correction);
+			if( font_data_index < 0 || font_data_index > (font->lastCode - font->firstCode) )
+			{
+				Serial.printf("Symbol with '%c'(code=%d) has no description in font \"%s\"!\n", str[i], str[i], font->name);
+				continue; // dont display garbage
+			}
+			ch_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
+			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
+			if( (x_coord+(*ch_data)) < SCREEN_SIZE_X )
+			{
+				for( uint8_t col = 0; col < *ch_data; col++ ) 
+				{
+					uint16_t ch_data_word = 0;
+					ch_data_word = ch_data[1+col*2+1];
+					ch_data_word <<= 8;
+					ch_data_word |= ch_data[1+col*2];
+					uint8_t color = (ch_data_word & ch_mask)?fore_color:back_color;
+					
+					//Serial.printf("data_word=0x%04x, ch_mask=0x%04x, color=0x%x\r\n", ch_data_word, ch_mask, color );
+					lcd_point( color );
+				}
+				lcd_point( back_color ); // space between charters
+				x_coord += *ch_data + 1;
+				
+			} else {
+				break;
+			}
+		}
+		Serial.println("End ---------------------------------");
+		lcd_points_flush();
+		x_coord = x;
+	}
+}
+
+void lcd_print_sys_12x14( uint8_t x, uint8_t y, String string, uint8_t fore_color, uint8_t back_color ) {
+	const char *str = string.c_str();
+	Serial.println("Codes -------------------------------");
+	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
+	// Serial.println("End ---------------------------------");
+	int str_len = string.length();
+	uint16_t ch_mask = 0;
+	uint16_t x_coord = x;
+	for( int line = 0; line < 14; line++ )
+	{
+		//Serial.printf("Print line %d\r\n", line);
+		ch_mask = 1<<line;
+		lcd_setcursor( y+line, x );
+		for( int i = 0; i < strlen(str); i++ ) 
+		{
+			const uint8_t *ch_data;
+			if( str[i] == 208 ) // russian
+			{
+				Serial.print(str[i],HEX);
+				Serial.print("-");
+				i++;
+				Serial.println(str[i],HEX);
+				ch_data = &Verdana12x14ru[ 25 * (str[i]-144) ]; // pointer to font char descriptor
+			}
+			else if( str[i] == 209 ) // russian
+			{
+				Serial.print(str[i],HEX);
+				Serial.print("-");
+				i++;
+				Serial.println(str[i],HEX);
+				ch_data = &Verdana12x14ru[ 25 * (str[i]-80) ]; // pointer to font char descriptor
+			}
+			else
+			{
+				ch_data = &Verdana12x14en[ 25 * (str[i]-32) ]; // pointer to font char descriptor
+			}
+			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
+			if( (x_coord+(*ch_data)) < 240 )
+			{
+				for( uint8_t col = 0; col < *ch_data; col++ ) 
+				{
+					uint16_t ch_data_word = 0;
+					ch_data_word = ch_data[1+col*2+1];
+					ch_data_word <<= 8;
+					ch_data_word |= ch_data[1+col*2];
+					uint8_t color = (ch_data_word & ch_mask)?fore_color:back_color;
+					
+					//Serial.printf("data_word=0x%04x, ch_mask=0x%04x, color=0x%x\r\n", ch_data_word, ch_mask, color );
+					lcd_point( color );
+				}
+				lcd_point( back_color ); // space between charters
+				x_coord += *ch_data + 1;
+				
+			} else {
+				break;
+			}
+		}
+		Serial.println("End ---------------------------------");
+		lcd_points_flush();
+		x_coord = x;
+	}
+}
+
+static uint8_t pts_cnt = 0;
+static uint8_t offset = 4;
+static uint8_t color_data[3] = {0};
+
+void lcd_point(uint8_t color) 
+{
+	color_data[pts_cnt>>1] |= color << offset;
+	pts_cnt++;
+	if( pts_cnt == 6 ) 
+	{
+		lcd_points_flush();
+	}
+	else if( offset == 0 ) offset = 4; else offset = 0;
+}
+void lcd_points_flush( void )
+{
+	if( pts_cnt )
+	{
+		lcd_wr_data(color_data[0]);
+		lcd_wr_data(color_data[1]);
+		lcd_wr_data(color_data[2]);
+		pts_cnt = 0;
+		offset = 4;
+		color_data[0] = 0;
+		color_data[1] = 0;
+		color_data[2] = 0;
+	}
+}
+//----------------------------------------------------------------------------------
 
 

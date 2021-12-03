@@ -6,6 +6,20 @@
 #include "lg24064-fonts.h"
 #include "types.h"
 
+
+
+font_desc_t font[FONT_NUM] = {
+    {
+        .name = "BIG CLOCK"
+        .fontData = Tahoma16x32,
+        .rowsPerSymbol = FONT_BIG_CLOCK_ROWS,
+        .colsMaxPerSymbol = FONT_BIG_CLOCK_COLUMNS,
+        .bytesPerColumn = FONT_BYTES_PER_COLUMN(FONT_BIG_CLOCK_ROWS),
+        .firstCode = FONT_BIG_CLOCK_FIRST_CODE,
+        .lastCode = FONT_BIG_CLOCK_LAST_CODE,
+    }
+};
+
 uchar  hz16_tab[]=
 	{
     	    
@@ -619,3 +633,4 @@ uchar ASC_16[]={
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x30,
    0x60, 0x80, 0x00, 0x10, 0xF0, 0x00, 0x00, 0x00,//      ;��
 }; 
+
