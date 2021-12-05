@@ -10,13 +10,22 @@
 
 font_desc_t font[FONT_NUM] = {
     {
-        .name = "BIG CLOCK"
-        .fontData = Tahoma16x32,
-        .rowsPerSymbol = FONT_BIG_CLOCK_ROWS,
-        .colsMaxPerSymbol = FONT_BIG_CLOCK_COLUMNS,
-        .bytesPerColumn = FONT_BYTES_PER_COLUMN(FONT_BIG_CLOCK_ROWS),
-        .firstCode = FONT_BIG_CLOCK_FIRST_CODE,
-        .lastCode = FONT_BIG_CLOCK_LAST_CODE,
+        "BIG CLOCK",
+        Tahoma16x32,
+        FONT_BIG_CLOCK_ROWS,
+        FONT_BIG_CLOCK_COLUMNS,
+        FONT_BYTES_PER_COLUMN(FONT_BIG_CLOCK_ROWS),
+        FONT_BIG_CLOCK_FIRST_CODE,
+        FONT_BIG_CLOCK_LAST_CODE,
+    },
+    {
+        "BIG CLOCK 2",
+        Tahoma24x37,
+        FONT_BIG_CLOCK_2_ROWS,
+        FONT_BIG_CLOCK_2_COLUMNS,
+        FONT_BYTES_PER_COLUMN(FONT_BIG_CLOCK_2_ROWS),
+        FONT_BIG_CLOCK_2_FIRST_CODE,
+        FONT_BIG_CLOCK_2_LAST_CODE,
     }
 };
 

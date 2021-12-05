@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "Arduino.h"
+#include "lg24064-fonts.h"
 
 #define LCD_CMD_SET_COLUMN_ADDR_LSB                     0b00000000  // 0x00
 #define LCD_CMD_SET_COLUMN_ADDR_MSB                     0b00010000  // 0x10

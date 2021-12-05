@@ -6,7 +6,6 @@
 //*******************************************************************/
 
 #include <Arduino.h>
-#include "lg24064-fonts.h"
 #include "lg240644-s8.h"
 #include "types.h"
 
@@ -565,14 +564,15 @@ void lcd_main(void)
 			delay_ms(2000);
 			lcd_clr_screen();
 			for( int i = 107; i >= 0; i-- ) {
-				String clock_str = "";
-				clock_str += i/60;
-				clock_str += ":";
-				clock_str += i%60;
-				// char clock_str[10];
-				// sprintf( clock_str, "%d:%02d",i/60, i%60);
-				lcd_print_font(180,16,clock_str,&font[FONT_BIG_CLOCK],15,0);
-				deley_ms(1000);
+				char clock_str[10];
+				sprintf( clock_str, "%d:%02d",i/60, i%60);
+				String clock_string = clock_str;
+				// clock_str += i/60;
+				// clock_str += ":";
+				// clock_str += i%60;
+				Serial.println(clock_string);
+				lcd_print_font(160,13,clock_str,&font[FONT_BIG_CLOCK_2],15,0);
+				delay_ms(1000);
 			}
 			while(1);
 
@@ -622,9 +622,13 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 				correction += 48;
 			}
 			int font_data_index = ((font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1) * (str[i] + correction);
-			if( font_data_index < 0 || font_data_index > (font->lastCode - font->firstCode) )
+			
+				// Serial.printf("A=%d, B=%d\n",(font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1, str[i] + correction);
+
+			if( font_data_index < 0 || font_data_index > ((font->lastCode - font->firstCode)*(font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1) )
 			{
-				Serial.printf("Symbol with '%c'(code=%d) has no description in font \"%s\"!\n", str[i], str[i], font->name);
+				// Serial.printf("Symbol with '%c'(code=%d) has no description in font \"%s\"!\n", str[i], str[i], font->name);
+				// Serial.printf("Correction=%d, font_data_index=%d\n", correction, font_data_index);
 				continue; // dont display garbage
 			}
 			symbol_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
@@ -634,7 +638,7 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 				for( uint8_t col = 0; col < *symbol_data && col < font->colsMaxPerSymbol; col++ ) 
 				{
 					uint64_t symbol_column_word = 0;
-					for( int j = 0; j < font->bytesPerColumn; j++ )
+					for( int j = font->bytesPerColumn-1; j >= 0; j-- )
 					{
 						symbol_column_word <<= 8;
 						symbol_column_word |= symbol_data[1 + col*font->bytesPerColumn + j];
@@ -651,7 +655,7 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 				break;
 			}
 		}
-		Serial.println("End ---------------------------------");
+		// Serial.println("End ---------------------------------");
 		lcd_points_flush();
 		x_coord = x;
 	}
