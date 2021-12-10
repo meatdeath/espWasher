@@ -376,21 +376,6 @@ void lcd_dis_word( uint8_t x, uint8_t y, uint8_t *str, uint8_t ch8_16 )
 		
 		while( *str != 0x00 )
 		{
-			if ( *str&0x80 )
-			{
-				if( ch8_16 == 12 )
-                {
-                    ch_y = 2;
-    				ch_x = 12;					   
-    				lcd_one_word( row,col, hz12_tab, *str&0x7f, 24 );
-                }
-                else if( ch8_16 == 16 )
-                {
-                    ch_y = 2;
-    				ch_x = 16;					   
-    				lcd_one_word( row, col, hz16_tab, *str&0x7f, 32 );
-                }	
-			}
 			else if( ch8_16 == 6*8 )
 			{
 				ch_y = 1;
@@ -535,7 +520,6 @@ void lcd_main(void)
 			lcd_dis_square();
             lcd_dis_word(8,24,STR_24064_4,6*8);
             lcd_dis_word(24,16,STR_24064_5,8*8);
-			lcd_dis_word(40,16,STR1,16);
             delay_ms(1000);
 			
 			// lcd_set_contrast(1);
