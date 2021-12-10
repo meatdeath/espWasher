@@ -561,7 +561,10 @@ void lcd_main(void)
 			lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
 			lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
 			lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
-			delay_ms(2000);
+			delay_ms(500);
+			lcd_clr_screen();
+			lcd_print_font(0,13,"0123456789",&font[FONT_BIG_CLOCK_2],15,0);
+			delay(1000);
 			lcd_clr_screen();
 			for( int i = 107; i >= 0; i-- ) {
 				char clock_str[10];
@@ -571,7 +574,7 @@ void lcd_main(void)
 				// clock_str += ":";
 				// clock_str += i%60;
 				Serial.println(clock_string);
-				lcd_print_font(160,13,clock_str,&font[FONT_BIG_CLOCK_2],15,0);
+				lcd_print_font(155,13,clock_str,&font[FONT_BIG_CLOCK_2],15,0);
 				delay_ms(1000);
 			}
 			while(1);
@@ -604,9 +607,10 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 	uint16_t x_coord = x;
 	for( int line = 0; line < font->rowsPerSymbol; line++ )
 	{
+		x_coord = x;
 		//Serial.printf("Print line %d\r\n", line);
-		ch_mask = 1<<line;
-		lcd_setcursor( y+line, x );
+		ch_mask = (uint64_t)1<<line;
+		lcd_setcursor( y+line, x/3 );
 		for( int i = 0; i < strlen(str); i++ ) 
 		{
 			const uint8_t *symbol_data;
@@ -633,6 +637,7 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 			}
 			symbol_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
 			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
+			//Serial.printf("x=%d symsize=%d\r\n", x_coord, *symbol_data );
 			if( (x_coord+(*symbol_data)) < LG240644_SCREEN_SIZE_X )
 			{
 				for( uint8_t col = 0; col < *symbol_data && col < font->colsMaxPerSymbol; col++ ) 
