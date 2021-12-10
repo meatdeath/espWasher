@@ -19,7 +19,7 @@ void setup() {
     mcp[0].init();
     mcp[1].init();
 
-		lcd_init();		
+	lcd_init();		
 }
 
 
