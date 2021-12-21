@@ -367,85 +367,85 @@ void lcd_one_word( uint8_t x, uint8_t y, uint8_t *Lib, uint8_t ch_num, uint8_t w
 //	һ���ִ������			
 //*******************************************************************
 
-void lcd_dis_word( uint8_t x, uint8_t y, uint8_t *str, uint8_t ch8_16 )
-	{
-		uint row,col,ch_x,ch_y;
+// void lcd_dis_word( uint8_t x, uint8_t y, uint8_t *str, uint8_t ch8_16 )
+// 	{
+// 		uint row,col,ch_x,ch_y;
 						    			
-		row = x;
-		col = y;
+// 		row = x;
+// 		col = y;
 		
-		while( *str != 0x00 )
-		{
-			else if( ch8_16 == 6*8 )
-			{
-				ch_y = 1;
-				ch_x = 8;
-                ch_68 = 0;
-				lcd_one_word( row, col, ASC_6, *str-0x20, 8 );
-			}
-			else if( ch8_16 == 8*8 )
-			{
-				ch_y = 1;
-				ch_x = 8;
-                ch_68 = 1;
-				lcd_one_word( row, col, ASC_8, *str-0x20, 8) ;
-			}
-            else
-			{
-				ch_y = 1;
-				ch_x = 16;
-			 	lcd_one_word( row, col, ASC_16, *str-0x20, 16 );
-			}	
-			if ( *str&0x80 )
-			{
-                if( ch8_16 == 12 )
-                	col = col+ch_y*2;
-                else if( ch8_16 == 16 )
-                	col = col+ch_y*2+1;
-            }
-            else if( ch8_16 == 6*8 )
-				col = col+ch_y*2;
-            else 
-				col = col+ch_y*3;
-			if ( col >= dis_col )
-            {
-                if( ch8_16 == 6*8 )
-				{
-					col = y;
-					row += ch_x+1;
-				}
-                else 
-				{
-					col=y;
-					row+=ch_x;
-				}		
-            }
-			if ( row >= dis_line ) row = x;
-			str++;	
-		}  
-	}
+// 		while( *str != 0x00 )
+// 		{
+// 			if( ch8_16 == 6*8 )
+// 			{
+// 				ch_y = 1;
+// 				ch_x = 8;
+//                 ch_68 = 0;
+// 				lcd_one_word( row, col, ASC_6, *str-0x20, 8 );
+// 			}
+// 			else if( ch8_16 == 8*8 )
+// 			{
+// 				ch_y = 1;
+// 				ch_x = 8;
+//                 ch_68 = 1;
+// 				lcd_one_word( row, col, ASC_8, *str-0x20, 8) ;
+// 			}
+//             else
+// 			{
+// 				ch_y = 1;
+// 				ch_x = 16;
+// 			 	lcd_one_word( row, col, ASC_16, *str-0x20, 16 );
+// 			}	
+// 			if ( *str&0x80 )
+// 			{
+//                 if( ch8_16 == 12 )
+//                 	col = col+ch_y*2;
+//                 else if( ch8_16 == 16 )
+//                 	col = col+ch_y*2+1;
+//             }
+//             else if( ch8_16 == 6*8 )
+// 				col = col+ch_y*2;
+//             else 
+// 				col = col+ch_y*3;
+// 			if ( col >= dis_col )
+//             {
+//                 if( ch8_16 == 6*8 )
+// 				{
+// 					col = y;
+// 					row += ch_x+1;
+// 				}
+//                 else 
+// 				{
+// 					col=y;
+// 					row+=ch_x;
+// 				}		
+//             }
+// 			if ( row >= dis_line ) row = x;
+// 			str++;	
+// 		}  
+// 	}
 
-//*******************************************************************
-// display ch	
-//*******************************************************************
+// //*******************************************************************
+// // display ch	
+// //*******************************************************************
 
-void lcd_dis_ch( uint8_t x, uint8_t y, uint8_t *str, uint8_t i )
-{
-	uint8_t j, row, word;
-	int xi;
+// void lcd_dis_ch( uint8_t x, uint8_t y, uint8_t *str, uint8_t i )
+// {
+// 	uint8_t j, row, word;
+// 	int xi;
 	
-	for (j=0;j<i;j++)
-	{	
-		word = str[j];
-		xi = (word-0x20)*8;
-		for( row = 0; row < 8; row++ )
-		{
-			lcd_setcursor( x+j*8+row, y );
-			lcd_byte_extend_gr( ASC_8[xi] );
-			xi++;
-		}
-	}
-}
+// 	for (j=0;j<i;j++)
+// 	{	
+// 		word = str[j];
+// 		xi = (word-0x20)*8;
+// 		for( row = 0; row < 8; row++ )
+// 		{
+// 			lcd_setcursor( x+j*8+row, y );
+// 			lcd_byte_extend_gr( ASC_8[xi] );
+// 			xi++;
+// 		}
+// 	}
+// }
 
 //*******************************************************************/ 
 //�Աȶ�����			
@@ -516,11 +516,11 @@ void lcd_main(void)
 {					    
 		//P0 = P1 = P2 = 0xFF;
 						//��ʼ��LCD
-			lcd_clr_screen();
-			lcd_dis_square();
-            lcd_dis_word(8,24,STR_24064_4,6*8);
-            lcd_dis_word(24,16,STR_24064_5,8*8);
-            delay_ms(1000);
+			// lcd_clr_screen();
+			// lcd_dis_square();
+            // lcd_dis_word(8,24,STR_24064_4,6*8);
+            // lcd_dis_word(24,16,STR_24064_5,8*8);
+            // delay_ms(1000);
 			
 			// lcd_set_contrast(1);
             // lcd_clr_screen();
@@ -535,183 +535,125 @@ void lcd_main(void)
 			// delay(2000);
 		while(1)
 		{ 		
+			// // lcd_clr_screen();
+			// //lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
+			// // lcd_print_sys_12x14( 5, 20, "TEST test 1234567890" );
+            // // delay_ms(1000);
 			// lcd_clr_screen();
-			//lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
-			// lcd_print_sys_12x14( 5, 20, "TEST test 1234567890" );
-            // delay_ms(1000);
+			// //lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
+			// lcd_print_sys_12x14( 0, 0, "АБВ абв ABC abc" );
+			// lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
+			// lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
+			// lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
+			// delay_ms(500);
+			// lcd_clr_screen();
+			// lcd_print_font(0,13,"0123456789",&font[FONT_BIG_CLOCK_2],15,0);
+			// delay(1000);
 			lcd_clr_screen();
-			//lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
-			lcd_print_sys_12x14( 0, 0, "АБВ абв ABC abc" );
-			lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
-			lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
-			lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
-			delay_ms(500);
-			lcd_clr_screen();
-			lcd_print_font(0,13,"0123456789",&font[FONT_BIG_CLOCK_2],15,0);
-			delay(1000);
-			lcd_clr_screen();
+			//lcd_print_font(3,12,"НОРМАЛЬНО",&font[FONT_ARIALBOLD20],15,0);
+			// lcd_print_font(3,12,"ОБЫЧНО",&font[FONT_ARIALBOLD20],15,0);
+			// delay(3000);
+			// lcd_print_font(3,12,"БЕРЕЖНО",&font[FONT_ARIALBOLD20],15,0);
+			//lcd_print_font(3,12,"ОБЫЧНО",&font[FONT_ARIALBOLD20],15,0,3);
+			//lcd_print_font(3,35,"АБВЪЫЬЭЮЯ",&font[FONT_SMALL],15,0);
+			lcd_print_font(3,47,"тест",&font[FONT_SMALL],0,15);
+			//lcd_print_font(9,12,"АБВГДЕЖЗИК",&font[FONT_MIDDLE],15,0);
+			//while(1);
 			for( int i = 107; i >= 0; i-- ) {
+				if(i%3 == 0) {
+					lcd_print_font(0,25,"ОБЫЧНО ",&font[FONT_ARIALBOLD20],15,0);
+				} else if(i%3 == 1) {
+					lcd_print_font(0,25,"БЕРЕЖНО",&font[FONT_ARIALBOLD20],15,0);
+				} else {
+					lcd_print_font(0,25,"СИЛЬНО ",&font[FONT_ARIALBOLD20],15,0);
+				}
 				char clock_str[10];
 				sprintf( clock_str, "%d:%02d",i/60, i%60);
 				String clock_string = clock_str;
-				// clock_str += i/60;
-				// clock_str += ":";
-				// clock_str += i%60;
 				Serial.println(clock_string);
-				lcd_print_font(155,13,clock_str,&font[FONT_BIG_CLOCK_2],15,0);
+				lcd_print_font(148,13,clock_str,&font[FONT_BIG_CLOCK_2],15,0);
 				delay_ms(1000);
 			}
 			while(1);
 
 
-			lcd_clr_screen();
-			lcd_dis_word(1,1,STR_24064_7,8*8);
-            delay_ms(5000);
-			lcd_clr_screen();
-			lcd_dis_word(1,1,STR_24064_7,6*8);
-            delay_ms(5000);
-			lcd_clr_screen();
-			lcd_dis_word(1,1,STR_24064_7,16*16);
-            delay_ms(5000);
+			// lcd_clr_screen();
+			// lcd_dis_word(1,1,STR_24064_7,8*8);
+            // delay_ms(5000);
+			// lcd_clr_screen();
+			// lcd_dis_word(1,1,STR_24064_7,6*8);
+            // delay_ms(5000);
+			// lcd_clr_screen();
+			// lcd_dis_word(1,1,STR_24064_7,16*16);
+            // delay_ms(5000);
 		}	
 	}
 
 //----------------------------------------------------------------------------------
 
-void lcd_point(uint8_t color);
-void lcd_points_flush( void );
 
-void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uint8_t fore_color, uint8_t back_color ) {
-	const char *str = string.c_str();
-	//Serial.println("Codes -------------------------------");
-	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
-	// Serial.println("End ---------------------------------");
-	int str_len = string.length();
-	uint64_t ch_mask = 0;
-	uint16_t x_coord = x;
-	for( int line = 0; line < font->rowsPerSymbol; line++ )
-	{
-		x_coord = x;
-		//Serial.printf("Print line %d\r\n", line);
-		ch_mask = (uint64_t)1<<line;
-		lcd_setcursor( y+line, x/3 );
-		for( int i = 0; i < strlen(str); i++ ) 
-		{
-			const uint8_t *symbol_data;
-			int correction = -font->firstCode;
-			if( str[i] == 208 ) // russian
-			{
-				i++;
-				correction += -112;
-			}
-			else if( str[i] == 209 ) // russian
-			{
-				i++;
-				correction += 48;
-			}
-			int font_data_index = ((font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1) * (str[i] + correction);
-			
-				// Serial.printf("A=%d, B=%d\n",(font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1, str[i] + correction);
-
-			if( font_data_index < 0 || font_data_index > ((font->lastCode - font->firstCode)*(font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1) )
-			{
-				// Serial.printf("Symbol with '%c'(code=%d) has no description in font \"%s\"!\n", str[i], str[i], font->name);
-				// Serial.printf("Correction=%d, font_data_index=%d\n", correction, font_data_index);
-				continue; // dont display garbage
-			}
-			symbol_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
-			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
-			//Serial.printf("x=%d symsize=%d\r\n", x_coord, *symbol_data );
-			if( (x_coord+(*symbol_data)) < LG240644_SCREEN_SIZE_X )
-			{
-				for( uint8_t col = 0; col < *symbol_data && col < font->colsMaxPerSymbol; col++ ) 
-				{
-					uint64_t symbol_column_word = 0;
-					for( int j = font->bytesPerColumn-1; j >= 0; j-- )
-					{
-						symbol_column_word <<= 8;
-						symbol_column_word |= symbol_data[1 + col*font->bytesPerColumn + j];
-					}
-					uint8_t color = (symbol_column_word & ch_mask) ? fore_color : back_color;
+// void lcd_print_sys_12x14( uint8_t x, uint8_t y, String string, uint8_t fore_color, uint8_t back_color ) {
+// 	const char *str = string.c_str();
+// 	Serial.println("Codes -------------------------------");
+// 	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
+// 	// Serial.println("End ---------------------------------");
+// 	int str_len = string.length();
+// 	uint16_t ch_mask = 0;
+// 	uint16_t x_coord = x;
+// 	for( int line = 0; line < 14; line++ )
+// 	{
+// 		//Serial.printf("Print line %d\r\n", line);
+// 		ch_mask = 1<<line;
+// 		lcd_setcursor( y+line, x );
+// 		for( int i = 0; i < strlen(str); i++ ) 
+// 		{
+// 			const uint8_t *ch_data;
+// 			if( str[i] == 208 ) // russian
+// 			{
+// 				Serial.print(str[i],HEX);
+// 				Serial.print("-");
+// 				i++;
+// 				Serial.println(str[i],HEX);
+// 				ch_data = &Verdana12x14ru[ 25 * (str[i]-144) ]; // pointer to font char descriptor
+// 			}
+// 			else if( str[i] == 209 ) // russian
+// 			{
+// 				Serial.print(str[i],HEX);
+// 				Serial.print("-");
+// 				i++;
+// 				Serial.println(str[i],HEX);
+// 				ch_data = &Verdana12x14ru[ 25 * (str[i]-80) ]; // pointer to font char descriptor
+// 			}
+// 			else
+// 			{
+// 				ch_data = &Verdana12x14en[ 25 * (str[i]-32) ]; // pointer to font char descriptor
+// 			}
+// 			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
+// 			if( (x_coord+(*ch_data)) < 240 )
+// 			{
+// 				for( uint8_t col = 0; col < *ch_data; col++ ) 
+// 				{
+// 					uint16_t ch_data_word = 0;
+// 					ch_data_word = ch_data[1+col*2+1];
+// 					ch_data_word <<= 8;
+// 					ch_data_word |= ch_data[1+col*2];
+// 					uint8_t color = (ch_data_word & ch_mask)?fore_color:back_color;
 					
-					//Serial.printf("data_word=0x%04x, ch_mask=0x%016x, color=0x%x\r\n", symbol_column_word, ch_mask, color );
-					lcd_point( color );
-				}
-				lcd_point( back_color ); // space between charters
-				x_coord += *symbol_data + 1;
+// 					//Serial.printf("data_word=0x%04x, ch_mask=0x%04x, color=0x%x\r\n", ch_data_word, ch_mask, color );
+// 					lcd_point( color );
+// 				}
+// 				lcd_point( back_color ); // space between charters
+// 				x_coord += *ch_data + 1;
 				
-			} else {
-				break;
-			}
-		}
-		// Serial.println("End ---------------------------------");
-		lcd_points_flush();
-		x_coord = x;
-	}
-}
-
-void lcd_print_sys_12x14( uint8_t x, uint8_t y, String string, uint8_t fore_color, uint8_t back_color ) {
-	const char *str = string.c_str();
-	Serial.println("Codes -------------------------------");
-	for( int i = 0; i < string.length(); i++) Serial.println(string[i],HEX);
-	// Serial.println("End ---------------------------------");
-	int str_len = string.length();
-	uint16_t ch_mask = 0;
-	uint16_t x_coord = x;
-	for( int line = 0; line < 14; line++ )
-	{
-		//Serial.printf("Print line %d\r\n", line);
-		ch_mask = 1<<line;
-		lcd_setcursor( y+line, x );
-		for( int i = 0; i < strlen(str); i++ ) 
-		{
-			const uint8_t *ch_data;
-			if( str[i] == 208 ) // russian
-			{
-				Serial.print(str[i],HEX);
-				Serial.print("-");
-				i++;
-				Serial.println(str[i],HEX);
-				ch_data = &Verdana12x14ru[ 25 * (str[i]-144) ]; // pointer to font char descriptor
-			}
-			else if( str[i] == 209 ) // russian
-			{
-				Serial.print(str[i],HEX);
-				Serial.print("-");
-				i++;
-				Serial.println(str[i],HEX);
-				ch_data = &Verdana12x14ru[ 25 * (str[i]-80) ]; // pointer to font char descriptor
-			}
-			else
-			{
-				ch_data = &Verdana12x14en[ 25 * (str[i]-32) ]; // pointer to font char descriptor
-			}
-			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
-			if( (x_coord+(*ch_data)) < 240 )
-			{
-				for( uint8_t col = 0; col < *ch_data; col++ ) 
-				{
-					uint16_t ch_data_word = 0;
-					ch_data_word = ch_data[1+col*2+1];
-					ch_data_word <<= 8;
-					ch_data_word |= ch_data[1+col*2];
-					uint8_t color = (ch_data_word & ch_mask)?fore_color:back_color;
-					
-					//Serial.printf("data_word=0x%04x, ch_mask=0x%04x, color=0x%x\r\n", ch_data_word, ch_mask, color );
-					lcd_point( color );
-				}
-				lcd_point( back_color ); // space between charters
-				x_coord += *ch_data + 1;
-				
-			} else {
-				break;
-			}
-		}
-		Serial.println("End ---------------------------------");
-		lcd_points_flush();
-		x_coord = x;
-	}
-}
+// 			} else {
+// 				break;
+// 			}
+// 		}
+// 		Serial.println("End ---------------------------------");
+// 		lcd_points_flush();
+// 		x_coord = x;
+// 	}
+// }
 
 static uint8_t pts_cnt = 0;
 static uint8_t offset = 4;

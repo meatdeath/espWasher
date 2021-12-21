@@ -57,9 +57,10 @@ void lcd_byte_extend_ch(uchar dat);
 void lcd_byte_extend_hz(uchar dat);
 void lcd_one_word(uchar x,uchar y,uchar *Lib,uchar ch_num,uchar widthw);
 void lcd_dis_word(uchar x,uchar y,uchar *str,uchar ch8_16);
-void lcd_print_sys_12x14( uint8_t x, uint8_t y, String string, uint8_t fore_color=0xF, uint8_t back_color=0 );
-void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uint8_t fore_color, uint8_t back_color );
 void lcd_init(void);
 void lcd_main(void);
+
+void lcd_point(uint8_t color);
+void lcd_points_flush( void );
 
 #endif //__LG240644_S8_H__
