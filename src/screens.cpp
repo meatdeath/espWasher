@@ -109,6 +109,10 @@ void screen_preview(uint8_t mode){
             lcd_print_font( 90, 48, rinse_short[3], &font[FONT_SMALL], 15, 0);
             lcd_print_font( 186, 16, wash_time[2], &font[FONT_SMALL], 15, 0);
             lcd_print_font( 186, 32, spin_short[2], &font[FONT_SMALL], 15, 0);
+
+            lcd_print_font( 132, 16, "|", &font[FONT_SMALL], 15, 0);
+            lcd_print_font( 132, 32, "|", &font[FONT_SMALL], 15, 0);
+            lcd_print_font( 132, 48, "|", &font[FONT_SMALL], 15, 0);
             break;
         case WASH_MODE_RINSE:
             break;

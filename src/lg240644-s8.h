@@ -49,6 +49,7 @@
 #define LG240644_SCREEN_SIZE_X  240
 #define LG240644_SCREEN_SIZE_Y  64
 
+void lcd_set_contrast(uint8_t flag);
 void lcd_setcursor(uchar x,uchar y);
 void lcd_clr_screen(void);
 void lcd_byte_extend(uchar dat);
