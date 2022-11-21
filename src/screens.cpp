@@ -5,12 +5,12 @@
 #define SYMBOL_CODE_GRADUS   127
 
 const char *main_menu_str[WASH_MODE_NUM] = {
-    "ОБЫЧНО ",
-    "БЕРЕЖНО",
-    "СИЛЬНО  ",
-    "ПОЛОСК.",
-    "ОТЖИМ  ",
-    "СЛИВ   "
+    "Обычная",//"Нормально ",
+    "Бережная",
+    "Интенсивная",
+    "Полоскание",
+    "Отжим",
+    "Слив"
 };
 const char *wash_param_str[WASH_PARAM_NUM] = {
     "Замачивание",
@@ -78,16 +78,28 @@ const char *spin_long[] = {
     "800об/мин"
 };
 
-void screen_main(uint8_t mode) {
-    lcd_print_font(  0, 25,  main_menu_str[mode], &font[FONT_ARIALBOLD20], 15, 0);
-    lcd_print_font(148, 13, main_menu_time[mode], &font[FONT_BIG_CLOCK_2], 15, 0);
-}
+char mode_str[40];
 
+void screen_main(uint8_t mode) {
+    // lcd_print_font(  0, 15,  main_menu_str[mode], &font[FONT_ARIALBOLD20], 15, 0);
+    // lcd_print_font(148, 13, main_menu_time[mode], &font[FONT_BIG_CLOCK_2], 15, 0);
+    
+    strcpy(mode_str, main_menu_str[mode]);
+    int len = strlen(mode_str)/2;
+    while(len++<12) 
+        strcat(mode_str, " ");
+    lcd_print_font(  6, 0,  mode_str, &font[FONT_ARIALBOLD20], 15, 0);
+    lcd_print_font(  12, 30, (mode<3)?"стирка":"        ", &font[FONT_ARIALBOLD20], 15, 0);
+    lcd_print_font(180, 30, main_menu_time[mode], &font[FONT_ARIALBOLD20], 15, 0);
+}
 
 
 void screen_preview(uint8_t mode){
     lcd_print_font(  0, 0,  "                              ", &font[FONT_SMALL], 0, 15);
-    lcd_print_font(  6, 0,  main_menu_str[mode], &font[FONT_SMALL], 0, 15);
+    strcpy(mode_str, main_menu_str[mode]);
+    if (mode<3) strcat(mode_str, " стирка");
+    lcd_print_font(  6, 0,  mode_str, &font[FONT_SMALL], 0, 15);
+    lcd_print_font(205, 0, main_menu_time[mode], &font[FONT_SMALL], 0, 15);
     switch(mode) {
         case WASH_MODE_NORMAL:
         case WASH_MODE_DELICATE:

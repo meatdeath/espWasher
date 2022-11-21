@@ -491,7 +491,7 @@ void lcd_init(void)
 	lcd_wr_ctrl(0xD5);			//set color mode
 	lcd_wr_ctrl(0xE9);			//set LCD bias ratio
 	
-	lcd_set_contrast(3);        // contrast value
+	lcd_set_contrast(1);        // contrast value
 	lcd_wr_ctrl(0x2A);			//set power control
 	lcd_wr_ctrl(0xF1);			//set COM end
 	lcd_wr_ctrl(0x3F);			//64  Line
