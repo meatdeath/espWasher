@@ -1,6 +1,6 @@
 #include "program.h"
 
-#define SUB_PROGRAM_WASH_NORMAL_IN_STEPS_NUM    4
+#define SUB_PROGRAM_WASH_NORMAL_IN_STEPS_NUM    5
 #define SUB_PROGRAM_WASH_NORMAL_STEPS_NUM       4
 #define SUB_PROGRAM_HEATER_ON_STEPS_NUM         2
 
