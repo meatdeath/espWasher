@@ -1,16 +1,55 @@
 #include "sw_timers.h"
 
-volatile soft_timer_t sw_timer[SW_TIMER_MAX] = {
-    {   // SW_TIMER_ACCELEROMETER_UPDATE
-        .triggered = false,
-        .autoupdate = true,
-        .updatetime = 1000,
-        .downcounter = 1000
-    }
-};
+#define SW_TIMEOUT_40MS     40
+#define SW_TIMEOUT_100MS    100
+#define SW_TIMEOUT_1S       1000
 
 
 hw_timer_t * timer = NULL;
+
+volatile bool blink = false;
+volatile uint8_t faded_blink = 0;
+
+extern volatile bool scr_redraw;
+
+void blink_callback()
+{
+    if(faded_blink == FADED_BLINK_MAX || faded_blink == FADED_BLINK_MIN) {
+        blink = !blink;
+    }
+    if( blink ) {
+        faded_blink++;
+    } else {
+        faded_blink--;
+    }
+    scr_redraw = true;
+}
+
+volatile soft_timer_t sw_timer[SW_TIMER_MAX] = {
+    {   // SW_TIMER_BLINK
+        .triggered = true,
+        .autoupdate = true,
+        .updatetime = SW_TIMEOUT_40MS,
+        .downcounter = SW_TIMEOUT_40MS,
+        .callback = &blink_callback
+    },
+    {   // SW_TIMER_ACCELEROMETER_UPDATE
+        .triggered = false,
+        .autoupdate = true,
+        .updatetime = SW_TIMEOUT_1S,
+        .downcounter = SW_TIMEOUT_1S,
+        .callback = NULL
+    },
+    {
+        // SW_TIMER_READ_PORT_A
+        .triggered = false,
+        .autoupdate = true,
+        .updatetime = SW_TIMEOUT_40MS,
+        .downcounter = SW_TIMEOUT_40MS,
+        .callback = NULL
+    }
+};
+
 
 void swTimerSetTriggered( enum sw_timers_en sw_timer_index, bool value )
 {
@@ -37,6 +76,8 @@ inline void swTimerUpdate(void) {
                 if(sw_timer[i].autoupdate) {
                     sw_timer[i].downcounter = sw_timer[i].updatetime;
                 }
+                if(sw_timer[i].callback) 
+                    sw_timer[i].callback();
             }
         }
     }

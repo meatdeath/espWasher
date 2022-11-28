@@ -40,8 +40,8 @@ uint8_t button_state = 0xFF;
 
 uint8_t wash_mode_index = 0;
 uint8_t screen_index = SCREEN_MAIN_MENU;
-static bool scr_redraw = true;
-static bool scr_clear = true;
+volatile bool scr_redraw = true;
+bool scr_clear = true;
 
 MCP23017 mcp[2] = { MCP23017(0x20), MCP23017(0x21) };
 
@@ -94,7 +94,7 @@ void setup() {
 }
 
 
-#define BUTTON_FILTER_LIMIT 20
+#define BUTTON_FILTER_LIMIT 2
 
 
 void loop() {
@@ -137,104 +137,109 @@ void loop() {
         Serial.println("=======================================================\n");
     }
 
-    
-    button_state = mcp[0].readPort(MCP23017Port::A);
-    if(button_last_state != button_state) {
-        button_filter++;
-        if(button_filter == BUTTON_FILTER_LIMIT) {
-            int beep = 0;
+    if(swTimerIsTriggered(SW_TIMER_READ_PORT_A, true)) {
+        uint8_t new_button_state = mcp[0].readPort(MCP23017Port::A);
+        if(button_state != new_button_state) button_filter = 0;
+        button_state = new_button_state;
+        if(button_last_state != button_state) {
+            button_filter++;
+            if(button_filter == BUTTON_FILTER_LIMIT) {
+                int beep = 0;
+                button_filter = 0;
+                button_last_state = button_state;
+                Serial.printf("Button state: 0x%02x\r\n", button_state);
+
+                if((button_state&BUTTON_MASK_RIGHT) == 0) { 
+                    Serial.println("[RIGHT]"); 
+                    beep = 100;
+                    scr_redraw = true;
+                    scr_clear = true;
+                    switch(screen_index) {
+                        case SCREEN_MAIN_MENU:
+                            wash_mode_index++;
+                            if(wash_mode_index == WASH_MODE_NUM) 
+                                wash_mode_index = 0;
+                            break;
+                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_EDIT_PREWASH_TIME:
+                        case SCREEN_EDIT_WASH_TIME:
+                        case SCREEN_EDIT_TEMPERATURE:
+                        case SCREEN_EDIT_RINSE:
+                        case SCREEN_EDIT_SPIN:
+                            scr_clear = false; 
+                            SelectNextParam(wash_mode_index);
+                            break;
+                    }
+                }
+                if((button_state&BUTTON_MASK_LEFT)  == 0) { 
+                    Serial.println("[LEFT]"); 
+                    beep = 100;
+                    scr_redraw = true;
+                    scr_clear = true;
+                    switch(screen_index) {
+                        case SCREEN_MAIN_MENU:
+                            if(wash_mode_index == 0)
+                                wash_mode_index = WASH_MODE_NUM - 1;
+                            else
+                                wash_mode_index--;
+                            break;
+                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_EDIT_PREWASH_TIME:
+                        case SCREEN_EDIT_WASH_TIME:
+                        case SCREEN_EDIT_TEMPERATURE:
+                        case SCREEN_EDIT_RINSE:
+                        case SCREEN_EDIT_SPIN:
+                            scr_clear = false; 
+                            SelectPrevParam(wash_mode_index);
+                            break;
+                    }
+                    scr_redraw = true;
+                }
+                if((button_state&BUTTON_MASK_UP)    == 0) { 
+                    Serial.println("[UP]"); 
+                    beep = 100; 
+                    scr_redraw = true;
+                    scr_clear = true;
+                    switch(screen_index) {
+                        case SCREEN_MAIN_MENU: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_PREVIEW:
+                            screen_index = SCREEN_MAIN_MENU;
+                            break;
+                        case SCREEN_EDIT_PREWASH_TIME:
+                        case SCREEN_EDIT_WASH_TIME:
+                        case SCREEN_EDIT_TEMPERATURE:
+                        case SCREEN_EDIT_RINSE:
+                        case SCREEN_EDIT_SPIN:
+                            screen_index = SCREEN_PREVIEW;
+                            break;
+                    }
+                }
+                if((button_state&BUTTON_MASK_DOWN)  == 0) { 
+                    Serial.println("[DOWN]"); 
+                    beep = 100;  
+                    NextScreen();
+                    scr_clear = true;
+                    scr_redraw = true;
+                }
+                if((button_state&BUTTON_MASK_START) == 0) { 
+                    Serial.println("[START]"); 
+                    beep = 500; 
+                    static uint8_t contrast = 24;
+                    lcd_set_contrast(contrast);
+                    Serial.printf("Contrast %d\n", contrast);
+                    contrast++;
+                    if(contrast == 32) contrast = 24;
+                }
+
+
+                if( beep ) {
+                    BUZER_ON();
+                    delay(beep);
+                    BUZER_OFF();
+                }
+            }
+        } else {
             button_filter = 0;
-            button_last_state = button_state;
-            Serial.printf("Button state: 0x%02x\r\n", button_state);
-
-            if((button_state&BUTTON_MASK_RIGHT) == 0) { 
-                Serial.println("[RIGHT]"); 
-                beep = 100;
-                scr_redraw = true;
-                scr_clear = true;
-                switch(screen_index) {
-                    case SCREEN_MAIN_MENU:
-                        wash_mode_index++;
-                        if(wash_mode_index == WASH_MODE_NUM) 
-                            wash_mode_index = 0;
-                        break;
-                    case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
-                    case SCREEN_EDIT_PREWASH_TIME:
-                    case SCREEN_EDIT_WASH_TIME:
-                    case SCREEN_EDIT_TEMPERATURE:
-                    case SCREEN_EDIT_RINSE:
-                    case SCREEN_EDIT_SPIN:
-                        scr_clear = false; 
-                        SelectNextParam(wash_mode_index);
-                        break;
-                }
-            }
-            if((button_state&BUTTON_MASK_LEFT)  == 0) { 
-                Serial.println("[LEFT]"); 
-                beep = 100;
-                scr_redraw = true;
-                scr_clear = true;
-                switch(screen_index) {
-                    case SCREEN_MAIN_MENU:
-                        if(wash_mode_index == 0)
-                            wash_mode_index = WASH_MODE_NUM - 1;
-                        else
-                            wash_mode_index--;
-                        break;
-                    case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
-                    case SCREEN_EDIT_PREWASH_TIME:
-                    case SCREEN_EDIT_WASH_TIME:
-                    case SCREEN_EDIT_TEMPERATURE:
-                    case SCREEN_EDIT_RINSE:
-                    case SCREEN_EDIT_SPIN:
-                        scr_clear = false; 
-                        SelectPrevParam(wash_mode_index);
-                        break;
-                }
-                scr_redraw = true;
-            }
-            if((button_state&BUTTON_MASK_UP)    == 0) { 
-                Serial.println("[UP]"); 
-                beep = 100; 
-                scr_redraw = true;
-                scr_clear = true;
-                switch(screen_index) {
-                    case SCREEN_MAIN_MENU: scr_redraw = false; scr_clear = false; break;
-                    case SCREEN_PREVIEW:
-                        screen_index = SCREEN_MAIN_MENU;
-                        break;
-                    case SCREEN_EDIT_PREWASH_TIME:
-                    case SCREEN_EDIT_WASH_TIME:
-                    case SCREEN_EDIT_TEMPERATURE:
-                    case SCREEN_EDIT_RINSE:
-                    case SCREEN_EDIT_SPIN:
-                        screen_index = SCREEN_PREVIEW;
-                        break;
-                }
-            }
-            if((button_state&BUTTON_MASK_DOWN)  == 0) { 
-                Serial.println("[DOWN]"); 
-                beep = 100;  
-                NextScreen();
-                scr_clear = true;
-                scr_redraw = true;
-            }
-            if((button_state&BUTTON_MASK_START) == 0) { 
-                Serial.println("[START]"); 
-                beep = 500; 
-                static uint8_t contrast = 24;
-                lcd_set_contrast(contrast);
-                Serial.printf("Contrast %d\n", contrast);
-                contrast++;
-                if(contrast == 32) contrast = 24;
-            }
-
-
-            if( beep ) {
-                BUZER_ON();
-                delay(beep);
-                BUZER_OFF();
-            }
         }
     }
 

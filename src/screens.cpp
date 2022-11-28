@@ -1,6 +1,7 @@
 #include "screens.h"
 #include "common.h"
 #include "program.h"
+#include "sw_timers.h"
 #include "lg240644-s8.h"
 #include "lg24064-fonts.h"
 
@@ -143,8 +144,6 @@ void screen_preview(uint8_t mode){
 #define MIN(A,B)    ((A>B)?B:A)
 #define MAX_PARAM_PER_SCREEN 3
 
-bool blink = true;
-
 void screen_edit_param( const char *param_name, const char *param_str[], uint8_t param_num, uint8_t param_idx);
 
 void screen_edit_prewash_time(uint8_t mode){
@@ -176,16 +175,33 @@ void screen_edit_param( const char *param_name, const char *param_str[], uint8_t
     if( offset == (param_num-1) && offset > 2) offset--;
     if( offset > 0 ) offset--;
     for( uint i = 0; i < MIN(param_num,MAX_PARAM_PER_SCREEN); i++) {
+        // strcpy(tmp_str, " ");
+        // strcat(tmp_str, param_str[offset+i]);
+        // uint8_t colour1 = 15, colour2 = 0;
+        // // if( blink && (i+offset) == param_idx ) {
+        // //     colour1 = 0; 
+        // //     colour2 = 15;
+        // // }
+        // if( (i+offset) == param_idx ) {
+        //     colour1 = faded_blink; 
+        //     colour2 = FADED_BLINK_MAX-faded_blink;
+        // }
+        // lcd_print_font(6, 16*(i+1), "                            ", &font[FONT_SMALL], colour1, colour2);
+        // lcd_print_font(6, 16*(i+1), tmp_str,  &font[FONT_SMALL], colour1, colour2);
+        uint8_t colour = 15;
         strcpy(tmp_str, " ");
-        strcat(tmp_str, param_str[offset+i]);
-
-        uint8_t colour1 = 15, colour2 = 0;
-        if( blink && (i+offset) == param_idx ) {
-            colour1 = 0; 
-            colour2 = 15;
+        if( (i+offset) == param_idx ) {
+            colour = faded_blink; 
+            strcat(tmp_str, "> ");
+        } else {
+            strcat(tmp_str, "  ");
         }
-        lcd_print_font(6, 16*(i+1), "                            ", &font[FONT_SMALL], colour1, colour2);
-        lcd_print_font(6, 16*(i+1), tmp_str,  &font[FONT_SMALL], colour1, colour2);
+
+        lcd_print_font(0, 16*(i+1), tmp_str,  &font[FONT_SMALL], colour, 0);
+
+        strcpy(tmp_str, param_str[offset+i]);
+        strcat(tmp_str, "        ");
+        lcd_print_font(12, 16*(i+1), tmp_str,  &font[FONT_SMALL], colour, 0);
     }
 }
 
