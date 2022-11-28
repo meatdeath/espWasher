@@ -3,28 +3,24 @@
 
 #include <Arduino.h>
 
-enum wash_mode_en { 
-    WASH_MODE_NORMAL = 0,
-    WASH_MODE_DELICATE,
-    WASH_MODE_INTENSIVE,
-    WASH_MODE_RINSE,
-    WASH_MODE_SPIN,
-    WASH_MODE_DRAIN,
-    WASH_MODE_NUM
-};
-
-typedef enum wash_param_en {
-    WASH_PARAM_ZAMACHIVANIE = 0,
-    WASH_PARAM_STIRKA,
-    WASH_PARAM_TEMPERATURE,
-    WASH_PARAM_RINSE,
-    WASH_PARAM_SPIN,
-    WASH_PARAM_NUM
-} wash_submode_t;
+#define PREWASH_PARAM_STR_NUM       5
+#define TEMPERATURE_PARAM_STR_NUM   5
+#define WASH_PARAM_STR_NUM          4
+#define RINSE_PARAM_STR_NUM         5
+#define SPIN_PARAM_STR_NUM          5 
 
 void screen_main(uint8_t mode);
 void screen_preview(uint8_t mode);
-void screen_edit(uint8_t mode);
+void screen_edit_prewash_time(uint8_t mode);
+void screen_edit_wash_time(uint8_t mode);
+void screen_edit_temperature(uint8_t mode);
+void screen_edit_rinse(uint8_t mode);
+void screen_edit_spin(uint8_t mode);
+
 void screen_working(uint8_t mode);
+
+
+void SelectNextParam(uint8_t mode);
+void SelectPrevParam(uint8_t mode);
 
 #endif //__SCREENS_H__

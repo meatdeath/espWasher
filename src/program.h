@@ -45,11 +45,11 @@ typedef enum water_level_en {
 
 // Heater temperatures
 typedef enum heater_temperature_en {
-    HEATER_TEMPERATURE_NO_HEAT = 0,     // No heat
-    HEATER_TEMPERATURE_30C,             // Preheat to 30C
-    HEATER_TEMPERATURE_40C,             // Preheat to 40C
-    HEATER_TEMPERATURE_60C,             // Preheat to 60C
-    HEATER_TEMPERATURE_90C              // Preheat to 90C
+    TEMPERATURE_IDX_NO_HEAT = 0,     // No heat
+    TEMPERATURE_IDX_30C,             // Preheat to 30C
+    TEMPERATURE_IDX_40C,             // Preheat to 40C
+    TEMPERATURE_IDX_60C,             // Preheat to 60C
+    TEMPERATURE_IDX_90C              // Preheat to 90C
 } heater_temperature_t;
 
 typedef enum valve_type_en {
@@ -66,6 +66,19 @@ typedef enum sub_program_step_en {
     SP_STEP_ADJUST_WATER_LEVEL,
     SP_STEP_HEATER_ON
 } step_type_t;
+
+// ----------------------------------------------------------------------------
+
+
+#define UNDEFINED_SETUP_VALUE   UINT8_MAX
+
+typedef struct wash_setup_st {
+    uint8_t prewash_time_idx;
+    uint8_t wash_time_idx;
+    uint8_t temperature_idx;
+    uint8_t spin_rpm_idx;
+    uint8_t rinse_cnt;
+} wash_setup_t;
 
 // ----------------------------------------------------------------------------
 
