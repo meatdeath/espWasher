@@ -175,19 +175,6 @@ void screen_edit_param( const char *param_name, const char *param_str[], uint8_t
     if( offset == (param_num-1) && offset > 2) offset--;
     if( offset > 0 ) offset--;
     for( uint i = 0; i < MIN(param_num,MAX_PARAM_PER_SCREEN); i++) {
-        // strcpy(tmp_str, " ");
-        // strcat(tmp_str, param_str[offset+i]);
-        // uint8_t colour1 = 15, colour2 = 0;
-        // // if( blink && (i+offset) == param_idx ) {
-        // //     colour1 = 0; 
-        // //     colour2 = 15;
-        // // }
-        // if( (i+offset) == param_idx ) {
-        //     colour1 = faded_blink; 
-        //     colour2 = FADED_BLINK_MAX-faded_blink;
-        // }
-        // lcd_print_font(6, 16*(i+1), "                            ", &font[FONT_SMALL], colour1, colour2);
-        // lcd_print_font(6, 16*(i+1), tmp_str,  &font[FONT_SMALL], colour1, colour2);
         uint8_t colour = 15;
         strcpy(tmp_str, " ");
         if( (i+offset) == param_idx ) {
