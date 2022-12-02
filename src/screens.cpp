@@ -196,57 +196,57 @@ void screen_working(uint8_t mode){
 
 }
 
-extern uint8_t screen_index;
-void SelectNextParam(uint8_t mode)
-{
-    switch(screen_index)
-    {
-        case SCREEN_EDIT_PREWASH_TIME:  
-            if(wash_setup[mode].prewash_time_idx < (PREWASH_PARAM_STR_NUM-1))
-                wash_setup[mode].prewash_time_idx++; 
-            break;
-        case SCREEN_EDIT_WASH_TIME:
-            if(wash_setup[mode].wash_time_idx < (WASH_PARAM_STR_NUM-1))
-                wash_setup[mode].wash_time_idx++; 
-            break;
-        case SCREEN_EDIT_TEMPERATURE:
-            if(wash_setup[mode].temperature_idx < (TEMPERATURE_PARAM_STR_NUM-1))
-                wash_setup[mode].temperature_idx++; 
-            break;
-        case SCREEN_EDIT_RINSE:
-            if(wash_setup[mode].rinse_cnt < (RINSE_PARAM_STR_NUM-1))
-                wash_setup[mode].rinse_cnt++; 
-            break;
-        case SCREEN_EDIT_SPIN:
-            if(wash_setup[mode].spin_rpm_idx < (SPIN_PARAM_STR_NUM-1))
-                wash_setup[mode].spin_rpm_idx++; 
-            break;
-    }
-}
+// extern uint8_t screen_index;
+// void SelectNextParam(uint8_t mode)
+// {
+//     switch(screen_index)
+//     {
+//         case SCREEN_EDIT_PREWASH_TIME:  
+//             if(wash_setup[mode].prewash_time_idx < (PREWASH_PARAM_STR_NUM-1))
+//                 wash_setup[mode].prewash_time_idx++; 
+//             break;
+//         case SCREEN_EDIT_WASH_TIME:
+//             if(wash_setup[mode].wash_time_idx < (WASH_PARAM_STR_NUM-1))
+//                 wash_setup[mode].wash_time_idx++; 
+//             break;
+//         case SCREEN_EDIT_TEMPERATURE:
+//             if(wash_setup[mode].temperature_idx < (TEMPERATURE_PARAM_STR_NUM-1))
+//                 wash_setup[mode].temperature_idx++; 
+//             break;
+//         case SCREEN_EDIT_RINSE:
+//             if(wash_setup[mode].rinse_cnt < (RINSE_PARAM_STR_NUM-1))
+//                 wash_setup[mode].rinse_cnt++; 
+//             break;
+//         case SCREEN_EDIT_SPIN:
+//             if(wash_setup[mode].spin_rpm_idx < (SPIN_PARAM_STR_NUM-1))
+//                 wash_setup[mode].spin_rpm_idx++; 
+//             break;
+//     }
+// }
 
-void SelectPrevParam(uint8_t mode)
-{
-    switch(screen_index)
-    {
-        case SCREEN_EDIT_PREWASH_TIME:  
-            if(wash_setup[mode].prewash_time_idx > 0)
-                wash_setup[mode].prewash_time_idx--; 
-            break;
-        case SCREEN_EDIT_WASH_TIME:
-            if(wash_setup[mode].wash_time_idx > 0)
-                wash_setup[mode].wash_time_idx--; 
-            break;
-        case SCREEN_EDIT_TEMPERATURE:
-            if(wash_setup[mode].temperature_idx > 0)
-                wash_setup[mode].temperature_idx--; 
-            break;
-        case SCREEN_EDIT_RINSE:
-            if(wash_setup[mode].rinse_cnt > 0)
-                wash_setup[mode].rinse_cnt--; 
-            break;
-        case SCREEN_EDIT_SPIN:
-            if(wash_setup[mode].spin_rpm_idx > 0)
-                wash_setup[mode].spin_rpm_idx--; 
-            break;
-    }
-}
+// void SelectPrevParam(uint8_t mode)
+// {
+//     switch(screen_index)
+//     {
+//         case SCREEN_EDIT_PREWASH_TIME:  
+//             if(wash_setup[mode].prewash_time_idx > 0)
+//                 wash_setup[mode].prewash_time_idx--; 
+//             break;
+//         case SCREEN_EDIT_WASH_TIME:
+//             if(wash_setup[mode].wash_time_idx > 0)
+//                 wash_setup[mode].wash_time_idx--; 
+//             break;
+//         case SCREEN_EDIT_TEMPERATURE:
+//             if(wash_setup[mode].temperature_idx > 0)
+//                 wash_setup[mode].temperature_idx--; 
+//             break;
+//         case SCREEN_EDIT_RINSE:
+//             if(wash_setup[mode].rinse_cnt > 0)
+//                 wash_setup[mode].rinse_cnt--; 
+//             break;
+//         case SCREEN_EDIT_SPIN:
+//             if(wash_setup[mode].spin_rpm_idx > 0)
+//                 wash_setup[mode].spin_rpm_idx--; 
+//             break;
+//     }
+// }

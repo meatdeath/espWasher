@@ -24,11 +24,11 @@ typedef enum wash_param_en {
 typedef enum screen_index_en {
     SCREEN_MAIN_MENU = 0,
     SCREEN_PREVIEW,
-    SCREEN_EDIT_PREWASH_TIME,
-    SCREEN_EDIT_TEMPERATURE,
-    SCREEN_EDIT_WASH_TIME,
-    SCREEN_EDIT_RINSE,
-    SCREEN_EDIT_SPIN,
+    // SCREEN_EDIT_PREWASH_TIME,
+    // SCREEN_EDIT_TEMPERATURE,
+    // SCREEN_EDIT_WASH_TIME,
+    // SCREEN_EDIT_RINSE,
+    // SCREEN_EDIT_SPIN,
     SCREEN_NUM
 } screen_index_t;
 
