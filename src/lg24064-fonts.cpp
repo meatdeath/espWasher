@@ -88,8 +88,11 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 				i++;
 				correction += 0x80 + 48 - 0x80;// 0x80 -> (0x80+48) //0xF0 - 0x80; //	0x80 -> 0xF0(240) р-я
 			}
+
+            // calculate the font_data_index: data index in the font where to get font data
 			int font_data_index = ( font->colsMaxPerSymbol * font->bytesPerColumn + 1) * (str[i] + correction);
 
+            // validate if index doesn't point outside font data
 			if( font_data_index < 0 || font_data_index > ((font->lastCode - font->firstCode + 1)*((font->colsMaxPerSymbol) * (font->bytesPerColumn) + 1)) )
 			{
 				//Serial.printf("Symbol with '%c'(code=%d) has no description! Correction=%d, font_data_index=%d\n", str[i], str[i], correction, font_data_index);
@@ -98,10 +101,16 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 			symbol_data = &font->fontData[ font_data_index ]; // pointer to font char descriptor
 			//Serial.printf("Print line %d symbol 0x%x, len %d\r\n", line, str[i], *ch_data);
 			//Serial.printf("x=%d symsize=%d\r\n", x_coord, *symbol_data );
-			if( (x_coord+(*symbol_data)) < LG240644_SCREEN_SIZE_X )
-			{
+
+			// if( (x_coord+(*symbol_data)) < LG240644_SCREEN_SIZE_X )
+			// {
+                uint8_t col = 0;
 				for( uint8_t col = 0; col < *symbol_data && col < font->colsMaxPerSymbol; col++ ) 
 				{
+                    // check if data exceeds screen size to avoid overlapping
+                    if ( (x_coord+col) >= LG240644_SCREEN_SIZE_X )
+                        break;
+
 					uint64_t symbol_column_word = 0;
 					for( int j = font->bytesPerColumn-1; j >= 0; j-- )
 					{
@@ -113,13 +122,22 @@ void lcd_print_font( uint8_t x, uint8_t y, String string, font_desc_t *font, uin
 					//Serial.printf("data_word=0x%04x, ch_mask=0x%016x, color=0x%x\r\n", symbol_column_word, ch_mask, color );
 					lcd_point( color );
 				}
-				for( uint8_t space = 0; space < spacing; space++ )
+				for( uint8_t space = 0; space < spacing; space++ ) 
+                {
+                    // check if data exceeds screen size to avoid overlapping
+                    if ( (x_coord+col+space) >= LG240644_SCREEN_SIZE_X )
+                        break;
+
+                    // print space beetwen symbols
 					lcd_point( back_color ); // space between charters
+                }
+                
+                // recalculate new X position
 				x_coord += *symbol_data + spacing;
 				
-			} else {
-				break;
-			}
+			// } else {
+			// 	break;
+			// }
 		}
 			while( (x_coord%6) != 0 ) {
 				lcd_point( back_color );
