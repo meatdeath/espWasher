@@ -11,6 +11,8 @@
 #include "sw_timers.h"
 #include "program.h"
 
+//---------------------------------------------------------------------------------------
+
 #define LED     1
 #define LED_ON  digitalWrite(LED,LOW)
 #define LED_OFF digitalWrite(LED,HIGH)
@@ -25,37 +27,40 @@
 
 #define EXT0_PORTA_INT  13
 
-uint16_t button_state = 0xFF;
-// void IRAM_ATTR Ext0PortA() {
-//     uint8_t button_state = 0xFF;
-// }
-
-
-
-#define BUTTON_MASK_CANCEL      (1<<7)
-#define BUTTON_MASK_MINUS       (1<<6)
-#define BUTTON_MASK_PLUS        (1<<5)
-#define BUTTON_MASK_SPIN        (1<<4)
-#define BUTTON_MASK_RINSE       (1<<3)
-#define BUTTON_MASK_TEMPERATURE (1<<2)
-#define BUTTON_MASK_WASH        (1<<1)
 #define BUTTON_MASK_PREWASH     (1<<0)
+#define BUTTON_MASK_WASH        (1<<1)
+#define BUTTON_MASK_TEMPERATURE (1<<2)
+#define BUTTON_MASK_RINSE       (1<<3)
+#define BUTTON_MASK_SPIN        (1<<4)
+#define BUTTON_MASK_PLUS        (1<<5)
+#define BUTTON_MASK_MINUS       (1<<6)
+#define BUTTON_MASK_CANCEL      (1<<7)
 #define BUTTON_MASK_START       (1<<8)
 
 
-uint8_t wash_mode_index = 0;
-uint8_t screen_index = SCREEN_MAIN_MENU;
-volatile bool scr_redraw = true;
-bool scr_clear = true;
+#define BUTTON_FILTER_LIMIT 2
+
+//---------------------------------------------------------------------------------------
 
 MCP23017 mcp[2] = { MCP23017(0x20), MCP23017(0x21) };
-
 OneWire oneWire(ONE_WIRE_BUS);
 DS18B20 sensor(&oneWire);
 MPU6050 mpu6050(Wire);
-void NextScreen();
+
+volatile bool scr_redraw = true;
+bool scr_clear = true;
+
+uint16_t button_state = 0xFFFF;
+uint8_t wash_mode_index = 0;
+uint8_t screen_index = SCREEN_MAIN_MENU;
 
 extern wash_setup_t wash_setup[WASH_MODE_NUM];
+
+//---------------------------------------------------------------------------------------
+
+// void IRAM_ATTR Ext0PortA() {
+//     uint8_t button_state = 0xFF;
+// }
 
 void setup() {
     // Set pin mode
@@ -66,7 +71,7 @@ void setup() {
 
 	lcd_init();	
     lcd_clr_screen();
-    lcd_print_font(90, 24, "Starting...",  &font[FONT_SMALL], 15, 0);
+    lcd_print_font(90, 24, "Загрузка...",  &font[FONT_SMALL], 15, 0);
 
     mpu6050.begin();
     mpu6050.calcGyroOffsets(true);
@@ -105,9 +110,7 @@ void setup() {
     swTimerInit();
 }
 
-
-#define BUTTON_FILTER_LIMIT 2
-
+//---------------------------------------------------------------------------------------
 
 void loop() {
     static uint16_t button_last_state = 0;
@@ -239,7 +242,7 @@ void loop() {
                         if(wash_setup[wash_mode_index].wash_time_idx < (WASH_PARAM_STR_NUM-1))
                             wash_setup[wash_mode_index].wash_time_idx++; 
                         else
-                            wash_setup[wash_mode_index].wash_time_idx = 0;
+                            wash_setup[wash_mode_index].wash_time_idx = 1;
                     }
                 }
 
@@ -294,12 +297,11 @@ void loop() {
         beep = 0;
     }
 
-    if (scr_clear) {
-        lcd_clr_screen();
-        scr_clear = false;
-    }
     if(scr_redraw) {
-        //lcd_clr_screen();
+        if (scr_clear) {
+            lcd_clr_screen();
+            scr_clear = false;
+        }
         switch(screen_index) {
             case SCREEN_MAIN_MENU:
                 screen_main(wash_mode_index);
@@ -307,21 +309,6 @@ void loop() {
             case SCREEN_PREVIEW:
                 screen_preview(wash_mode_index);
                 break;
-            // case SCREEN_EDIT_PREWASH_TIME:
-            //     screen_edit_prewash_time(wash_mode_index);
-            //     break;
-            // case SCREEN_EDIT_WASH_TIME:
-            //     screen_edit_wash_time(wash_mode_index);
-            //     break;
-            // case SCREEN_EDIT_TEMPERATURE:
-            //     screen_edit_temperature(wash_mode_index);
-            //     break;
-            // case SCREEN_EDIT_RINSE:
-            //     screen_edit_rinse(wash_mode_index);
-            //     break;
-            // case SCREEN_EDIT_SPIN:
-            //     screen_edit_spin(wash_mode_index);
-            //     break;
             default:
                 screen_index = SCREEN_MAIN_MENU;
                 screen_main(wash_mode_index);
@@ -330,27 +317,4 @@ void loop() {
     }
 }
 
-void NextScreen() {
-    uint8_t old_idx = screen_index;
-    switch(screen_index) {
-        case SCREEN_MAIN_MENU:
-        case SCREEN_PREVIEW:
-        // case SCREEN_EDIT_PREWASH_TIME:
-        // case SCREEN_EDIT_WASH_TIME:
-        // case SCREEN_EDIT_TEMPERATURE:
-        // case SCREEN_EDIT_RINSE:
-        //     screen_index++;
-        //     break;
-        // case SCREEN_EDIT_SPIN:
-        //     screen_index = SCREEN_PREVIEW;
-        //     break;
-        default:
-            screen_index = SCREEN_MAIN_MENU;
-    }
-    if( screen_index != screen_index )
-    {
-        lcd_clr_screen();
-        scr_redraw = true;
-    }
-}
-
+//---------------------------------------------------------------------------------------
