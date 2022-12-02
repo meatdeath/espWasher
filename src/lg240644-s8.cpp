@@ -448,25 +448,14 @@ void lcd_one_word( uint8_t x, uint8_t y, uint8_t *Lib, uint8_t ch_num, uint8_t w
 // }
 
 //*******************************************************************/ 
-//�Աȶ�����			
+// Set contrast
+// @param contrast - values 0-255			
 //*******************************************************************
 
-void lcd_set_contrast(uint8_t flag)
+void lcd_set_contrast(uint8_t contrast)
 {
 	lcd_wr_ctrl(LCD_CMD_SET_VBIAS_POTENTIOMETER);
-	switch(flag)
-	{
-	case 1: 
-		lcd_wr_ctrl(0x25); break;	//VOP=13.2V	    
-	case 2: 
-		lcd_wr_ctrl(0x32); break;   //VOP+0.3V  
-	case 3: 
-		lcd_wr_ctrl(0x40); break;   //VOP+0.6V  
-	case 4: 
-		lcd_wr_ctrl(0x18); break;   //VOP-0.3V  
-	case 5: 
-		lcd_wr_ctrl(0x0b); break;   //VOP-0.6V  
-	}
+	lcd_wr_ctrl(contrast);
 }
     	
 //*******************************************************************/ 
@@ -491,7 +480,8 @@ void lcd_init(void)
 	lcd_wr_ctrl(0xD5);			//set color mode
 	lcd_wr_ctrl(0xE9);			//set LCD bias ratio
 	
-	lcd_set_contrast(1);        // contrast value
+	// TODO: add contrast parameter to config page
+	lcd_set_contrast(24);        // contrast value
 	lcd_wr_ctrl(0x2A);			//set power control
 	lcd_wr_ctrl(0xF1);			//set COM end
 	lcd_wr_ctrl(0x3F);			//64  Line
@@ -535,30 +525,8 @@ void lcd_main(void)
 			// delay(2000);
 		while(1)
 		{ 		
-			// // lcd_clr_screen();
-			// //lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
-			// // lcd_print_sys_12x14( 5, 20, "TEST test 1234567890" );
-            // // delay_ms(1000);
-			// lcd_clr_screen();
-			// //lcd_print_sys_12x14( 5, 20, "Съешь еще этих мягких французских булок" );
-			// lcd_print_sys_12x14( 0, 0, "АБВ абв ABC abc" );
-			// lcd_print_sys_12x14( 0, 16, "АБВ абв ABC abc", 0, 0xF );
-			// lcd_print_sys_12x14( 0, 32, "Тестовая строка", 0, 0x4 );
-			// lcd_print_sys_12x14( 0, 48, "Test string", 0xF, 0x2 );
-			// delay_ms(500);
-			// lcd_clr_screen();
-			// lcd_print_font(0,13,"0123456789",&font[FONT_BIG_CLOCK_2],15,0);
-			// delay(1000);
 			lcd_clr_screen();
-			//lcd_print_font(3,12,"НОРМАЛЬНО",&font[FONT_ARIALBOLD20],15,0);
-			// lcd_print_font(3,12,"ОБЫЧНО",&font[FONT_ARIALBOLD20],15,0);
-			// delay(3000);
-			// lcd_print_font(3,12,"БЕРЕЖНО",&font[FONT_ARIALBOLD20],15,0);
-			//lcd_print_font(3,12,"ОБЫЧНО",&font[FONT_ARIALBOLD20],15,0,3);
-			//lcd_print_font(3,35,"АБВЪЫЬЭЮЯ",&font[FONT_SMALL],15,0);
 			lcd_print_font(3,47,"тест",&font[FONT_SMALL],0,15);
-			//lcd_print_font(9,12,"АБВГДЕЖЗИК",&font[FONT_MIDDLE],15,0);
-			//while(1);
 			for( int i = 107; i >= 0; i-- ) {
 				if(i%3 == 0) {
 					lcd_print_font(0,25,"ОБЫЧНО ",&font[FONT_ARIALBOLD20],15,0);
@@ -575,17 +543,6 @@ void lcd_main(void)
 				delay_ms(1000);
 			}
 			while(1);
-
-
-			// lcd_clr_screen();
-			// lcd_dis_word(1,1,STR_24064_7,8*8);
-            // delay_ms(5000);
-			// lcd_clr_screen();
-			// lcd_dis_word(1,1,STR_24064_7,6*8);
-            // delay_ms(5000);
-			// lcd_clr_screen();
-			// lcd_dis_word(1,1,STR_24064_7,16*16);
-            // delay_ms(5000);
 		}	
 	}
 

@@ -1,6 +1,12 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+typedef enum screen_index_en {
+    SCREEN_MAIN_MENU = 0,
+    SCREEN_PREVIEW,
+    SCREEN_NUM
+} screen_index_t;
+
 enum wash_mode_en { 
     WASH_MODE_NORMAL = 0,
     WASH_MODE_DELICATE,
@@ -18,19 +24,7 @@ typedef enum wash_param_en {
     WASH_PARAM_RINSE_CNT,
     WASH_PARAM_SPIN_RPM,
     WASH_PARAM_NUM
-} wash_submode_t;
-
-
-typedef enum screen_index_en {
-    SCREEN_MAIN_MENU = 0,
-    SCREEN_PREVIEW,
-    SCREEN_EDIT_PREWASH_TIME,
-    SCREEN_EDIT_TEMPERATURE,
-    SCREEN_EDIT_WASH_TIME,
-    SCREEN_EDIT_RINSE,
-    SCREEN_EDIT_SPIN,
-    SCREEN_NUM
-} screen_index_t;
+} wash_param_t;
 
 typedef enum setup_speed_rpm_en {
     SETUP_SPEED_NO,
@@ -38,6 +32,9 @@ typedef enum setup_speed_rpm_en {
     SETUP_SPEED_600RPM,
     SETUP_SPEED_800RPM,
     SETUP_SPEED_1000RPM,
-} nsetup_spped_rpm_t;
+    SETUP_SPEED_NUM
+} setup_speed_rpm_t;
+
+#define MIN(A,B)    ((A>B)?B:A)
 
 #endif // __COMMON_H__
