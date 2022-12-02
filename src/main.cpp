@@ -38,6 +38,13 @@
 #define BUTTON_MASK_START       (1<<8)
 
 
+#define DOOR_LOCK_PORT          GPIO_B
+#define DOOR_LOCK_MASK          (1<<7)
+#define DOOR_LOCK_ON()      mcp[1].writeRegister(MCP23017Register::DOOR_LOCK_PORT, mcp[1].readRegister(MCP23017Register::DOOR_LOCK_PORT)|DOOR_LOCK_MASK)
+#define DOOR_LOCK_OFF()     mcp[1].writeRegister(MCP23017Register::DOOR_LOCK_PORT, mcp[1].readRegister(MCP23017Register::DOOR_LOCK_PORT)&~DOOR_LOCK_MASK)
+#define DOOR_LOCK_TOGGLE()  mcp[1].writeRegister(MCP23017Register::DOOR_LOCK_PORT, mcp[1].readRegister(MCP23017Register::DOOR_LOCK_PORT)^DOOR_LOCK_MASK)
+
+
 #define BUTTON_FILTER_LIMIT 2
 
 //---------------------------------------------------------------------------------------
@@ -79,7 +86,7 @@ void setup() {
     mcp[1].init();
 
     mcp[0].writeRegister(MCP23017Register::IODIR_A,0xFF);
-    mcp[0].writeRegister(MCP23017Register::IODIR_B,0x01);
+    mcp[0].writeRegister(MCP23017Register::IODIR_B,0x03);
     // configure interrupt
     // mcp[0].writeRegister(MCP23017Register::GPINTEN_A,0b11111000);   // interrupt on change
     // mcp[0].writeRegister(MCP23017Register::DEFVAL_A,0b11111000);    // default value
@@ -153,11 +160,22 @@ void loop() {
         Serial.print("\tangleZ : ");Serial.println(mpu6050.getAngleZ());
         Serial.println("=======================================================\n");
     }
+    static uint8_t old_test_led = 0;
+    uint8_t test_led = mcp[0].readPort(MCP23017Port::B)&0x02;
+    if (test_led != old_test_led) {
+        old_test_led = test_led;
+        if(old_test_led)
+            mcp[1].writeRegister(MCP23017Register::GPIO_A, mcp[1].readRegister(MCP23017Register::GPIO_A)|0x80);
+        else
+            mcp[1].writeRegister(MCP23017Register::GPIO_A, mcp[1].readRegister(MCP23017Register::GPIO_A)&~0x80);
+    }
 
     if(swTimerIsTriggered(SW_TIMER_READ_PORT_A, true)) {
         uint16_t new_button_state = mcp[0].readPort(MCP23017Port::B);
         new_button_state <<= 8;
         new_button_state |= mcp[0].readPort(MCP23017Port::A);
+        new_button_state &=  BUTTON_MASK_PREWASH | BUTTON_MASK_WASH | BUTTON_MASK_TEMPERATURE | BUTTON_MASK_RINSE | BUTTON_MASK_SPIN |
+                             BUTTON_MASK_PLUS | BUTTON_MASK_MINUS | BUTTON_MASK_CANCEL | BUTTON_MASK_START;
         if(button_state != new_button_state) button_filter = 0;
         button_state = new_button_state;
         if(button_last_state != button_state) {
@@ -214,10 +232,18 @@ void loop() {
 
                 if((button_state&BUTTON_MASK_START)  == 0) { 
                     Serial.println("[START]"); 
-                    beep = 100;  
-                    screen_index = SCREEN_PREVIEW;
-                    scr_clear = true;
-                    scr_redraw = true;
+                    if(screen_index == SCREEN_MAIN_MENU)
+                    {
+                        beep = 100;  
+                        screen_index = SCREEN_PREVIEW;
+                        scr_clear = true;
+                        scr_redraw = true;
+                    }
+                    else if (screen_index == SCREEN_PREVIEW)
+                    {
+                        beep = 300;  
+                        DOOR_LOCK_TOGGLE();
+                    }
                 }
 
                 if((button_state&BUTTON_MASK_PREWASH) == 0) {
