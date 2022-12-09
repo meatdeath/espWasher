@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #define VALVE1_PIN      5   // pin 34
-#define VALVE2_PIN      18  // pin 35
+#define VALVE2_PIN      17  // pin 35
 //#define VALVE3_PIN  GPIO  // pin 
 #define PUMP_PIN        23  // pin 36
 
@@ -39,7 +39,7 @@ uint16_t filter = 0;
 void loop() {
     // put your main code here, to run repeatedly:
     while(1) {
-        if (digitalRead(VALVE1_PIN) || digitalRead(VALVE1_PIN)) {
+        if (digitalRead(VALVE1_PIN) || digitalRead(VALVE2_PIN)) {
             if (filter < 10) filter++;
             else {
                 digitalWrite(LED_PIN, 0);
