@@ -20,7 +20,7 @@ wash_setup_t wash_setup[WASH_MODE_NUM] = {
     { .prewash_time_idx = DURATION_15MIN, .wash_time_idx = DURATION_30MIN, .temperature_idx = TEMPERATURE_IDX_60C, .spin_rpm_idx = SETUP_SPEED_800RPM, .rinse_cnt = 4},   // Intensive
     { .prewash_time_idx = UNDEFINED_SETUP_VALUE, .wash_time_idx = UNDEFINED_SETUP_VALUE, .temperature_idx = UNDEFINED_SETUP_VALUE, .spin_rpm_idx = SETUP_SPEED_800RPM, .rinse_cnt = 3},   //Rinse
     { .prewash_time_idx = UNDEFINED_SETUP_VALUE, .wash_time_idx = UNDEFINED_SETUP_VALUE, .temperature_idx = UNDEFINED_SETUP_VALUE, .spin_rpm_idx = SETUP_SPEED_800RPM, .rinse_cnt = UNDEFINED_SETUP_VALUE},   // Spin
-    { .prewash_time_idx = UNDEFINED_SETUP_VALUE, .wash_time_idx = UNDEFINED_SETUP_VALUE, .temperature_idx = UNDEFINED_SETUP_VALUE, .spin_rpm_idx = SETUP_SPEED_800RPM, .rinse_cnt = UNDEFINED_SETUP_VALUE}    // Drain
+    { .prewash_time_idx = UNDEFINED_SETUP_VALUE, .wash_time_idx = UNDEFINED_SETUP_VALUE, .temperature_idx = UNDEFINED_SETUP_VALUE, .spin_rpm_idx = UNDEFINED_SETUP_VALUE, .rinse_cnt = UNDEFINED_SETUP_VALUE}    // Drain
 };
 
 sub_program_step_t sp_heater_on[SUB_PROGRAM_HEATER_ON_STEPS_NUM] = {

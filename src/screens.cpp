@@ -47,7 +47,7 @@ const char *prewash_time_str[PREWASH_PARAM_STR_NUM] = {
     "60мин "};
 
 const char *temperature_str[TEMPERATURE_PARAM_STR_NUM] = {
-    "-       ",
+    "-   ",
     "30\x7FС ",
     "40\x7FС ",
     "60\x7FС ",
@@ -76,7 +76,7 @@ const char *rinse_long_str[RINSE_PARAM_STR_NUM] = {
 };
 
 const char *spin_short_str[SPIN_PARAM_STR_NUM] = {
-    "-       ",
+    "-           ",
     "400об/м ",
     "600об/м ",
     "800об/м ",
@@ -154,16 +154,25 @@ void screen_preview(uint8_t mode)
     lcd_print_font( 174, SCR_Y_LINE1, ":", &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_WASH_TIME), SCR_COLOR_BLACK);
     lcd_print_font( 174, SCR_Y_LINE2, ":", &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_SPIN_RPM), SCR_COLOR_BLACK);
 
-    lcd_print_font(  84, SCR_Y_LINE1, prewash_time_str[wash_setup[mode].prewash_time_idx], 
-                    &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_PREWASH_TIME), SCR_COLOR_BLACK);
-    lcd_print_font(  84, SCR_Y_LINE2, temperature_str[wash_setup[mode].temperature_idx], 
-                    &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_TEMPERATURE), SCR_COLOR_BLACK);
-    lcd_print_font(  84, SCR_Y_LINE3, rinse_short_str[wash_setup[mode].rinse_cnt], 
-                    &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_RINSE_CNT), SCR_COLOR_BLACK);
-    lcd_print_font( 180, SCR_Y_LINE1, wash_time_str[wash_setup[mode].wash_time_idx], 
-                    &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_WASH_TIME), SCR_COLOR_BLACK);
-    lcd_print_font( 180, SCR_Y_LINE2, spin_short_str[wash_setup[mode].spin_rpm_idx], 
-                    &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_SPIN_RPM), SCR_COLOR_BLACK);
+    if (wash_setup[mode].prewash_time_idx != UNDEFINED_SETUP_VALUE) strcpy(tmp_str, prewash_time_str[wash_setup[mode].prewash_time_idx]);
+    else strcpy(tmp_str, "-     ");
+    lcd_print_font(  84, SCR_Y_LINE1, tmp_str, &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_PREWASH_TIME), SCR_COLOR_BLACK);
+
+    if (wash_setup[mode].temperature_idx != UNDEFINED_SETUP_VALUE) strcpy(tmp_str, temperature_str[wash_setup[mode].temperature_idx]);
+    else strcpy(tmp_str, "-    ");
+    lcd_print_font(  84, SCR_Y_LINE2, tmp_str, &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_TEMPERATURE), SCR_COLOR_BLACK);
+    
+    if (wash_setup[mode].rinse_cnt != UNDEFINED_SETUP_VALUE) strcpy(tmp_str, rinse_short_str[wash_setup[mode].rinse_cnt]);
+    else strcpy(tmp_str, "-  ");
+    lcd_print_font(  84, SCR_Y_LINE3, tmp_str, &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_RINSE_CNT), SCR_COLOR_BLACK);
+    
+    if (wash_setup[mode].wash_time_idx != UNDEFINED_SETUP_VALUE) strcpy(tmp_str, wash_time_str[wash_setup[mode].wash_time_idx]);
+    else strcpy(tmp_str, "-     ");
+    lcd_print_font( 180, SCR_Y_LINE1, tmp_str, &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_WASH_TIME), SCR_COLOR_BLACK);
+    
+    if (wash_setup[mode].spin_rpm_idx != UNDEFINED_SETUP_VALUE) strcpy(tmp_str, spin_short_str[wash_setup[mode].spin_rpm_idx]);
+    else strcpy(tmp_str, "-       ");
+    lcd_print_font( 180, SCR_Y_LINE2, tmp_str, &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_SPIN_RPM), SCR_COLOR_BLACK);
     
 }
 
