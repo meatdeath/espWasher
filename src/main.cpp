@@ -56,6 +56,17 @@ uint8_t screen_index = SCREEN_MAIN_MENU;
 
 extern wash_setup_t wash_setup[WASH_MODE_NUM];
 
+volatile bool motor_enabled = false;
+uint32_t motor_pwm_on_time = 50;
+
+volatile uint32_t synchro_counter = 0;
+volatile uint16_t measured_rpm = 0;
+
+//---------------------------------------------------------------------------------------
+
+void ZeroCrossing();
+void SynchroCounting();
+
 //---------------------------------------------------------------------------------------
 
 // void IRAM_ATTR Ext0PortA() {
@@ -108,6 +119,14 @@ void setup() {
     screen_main(wash_mode_index);
     
     swTimerInit();
+
+    pinMode(MOTOR_PWM_PIN, OUTPUT);
+    digitalWrite(MOTOR_PWM_PIN, 0);
+    pinMode(ZC_PIN, INPUT_PULLUP);
+    pinMode(SYNCHRO_PIN, INPUT_PULLUP);
+
+    attachInterrupt(ZC_PIN, ZeroCrossing, FALLING);
+    attachInterrupt(SYNCHRO_PIN, SynchroCounting, FALLING);
 }
 
 //---------------------------------------------------------------------------------------
@@ -214,8 +233,13 @@ void loop() {
 
                 if((button_state&BUTTON_MASK_START)  == 0) { 
                     Serial.println("[START]"); 
-                    beep = 100;  
-                    screen_index = SCREEN_PREVIEW;
+                    beep = 100; 
+                    switch(screen_index)
+                    {
+                        case SCREEN_MAIN_MENU: screen_index = SCREEN_PREVIEW; break;
+                        case SCREEN_PREVIEW: screen_index = SCREEN_WORKING; motor_enabled = true; synchro_counter = 0; break;
+                        case SCREEN_WORKING: screen_index = SCREEN_PREVIEW; motor_enabled = false; break;
+                    } 
                     scr_clear = true;
                     scr_redraw = true;
                 }
@@ -309,12 +333,32 @@ void loop() {
             case SCREEN_PREVIEW:
                 screen_preview(wash_mode_index);
                 break;
+            case SCREEN_WORKING:
+                screen_working(wash_mode_index);
+                break;
             default:
                 screen_index = SCREEN_MAIN_MENU;
                 screen_main(wash_mode_index);
         }
         scr_redraw = false;
     }
+}
+
+//---------------------------------------------------------------------------------------
+
+void ZeroCrossing() 
+{
+    if(motor_enabled)
+    {
+        digitalWrite(MOTOR_PWM_PIN, 1);
+        swTimerConfigureUpdateTime(SW_TIMER_MOTOR_PWM, motor_pwm_on_time);
+        swTimerStart(SW_TIMER_MOTOR_PWM);
+    }
+}
+
+void SynchroCounting()
+{
+    synchro_counter++;
 }
 
 //---------------------------------------------------------------------------------------

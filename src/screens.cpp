@@ -131,11 +131,11 @@ uint8_t screen_param_color(uint8_t mode_idx, uint8_t param_idx)
 
 void screen_preview(uint8_t mode)
 {
-    lcd_print_font(0, 0, "                              ", &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
+    lcd_print_font(0, SCR_Y_LINE0, "                              ", &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
     strcpy(tmp_str, main_menu_str[mode]);
     if (mode < 3) strcat(tmp_str, " стирка");
-    lcd_print_font(   6, 0, tmp_str, &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
-    lcd_print_font( 205, 0, main_menu_time[mode], &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
+    lcd_print_font(   6, SCR_Y_LINE0, tmp_str, &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
+    lcd_print_font( 205, SCR_Y_LINE0, main_menu_time[mode], &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
 
     lcd_print_font(   0, SCR_Y_LINE1, wash_param_str[WASH_PARAM_PREWASH_TIME], 
                     &font[FONT_SMALL], screen_param_color(mode,WASH_PARAM_PREWASH_TIME), SCR_COLOR_BLACK);
@@ -180,6 +180,12 @@ void screen_preview(uint8_t mode)
 
 void screen_working(uint8_t mode)
 {
+    sprintf(tmp_str, "Test motor speed... %drpm   ", 0);
+    lcd_print_font(0, SCR_Y_LINE0, tmp_str, &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
+    sprintf(tmp_str, "Actual rpm: %d   ", measured_rpm);
+    lcd_print_font(0, SCR_Y_LINE1, tmp_str, &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
+    sprintf(tmp_str, "Time left... %d second(s)   ", 0);
+    lcd_print_font(0, SCR_Y_LINE2, tmp_str, &font[FONT_SMALL], SCR_COLOR_BLACK, SCR_COLOR_WHITE);
 }
 
 //---------------------------------------------------------------------------------------
