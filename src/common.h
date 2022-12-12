@@ -18,7 +18,7 @@
 #define SYNCHRO_TICKS_PER_S_ON_1000_RPM 1333    // 16,7Hz
 
 #define RPM_TO_TICKS(RPM)   (RPM*SYNCHRO_TICKS_AT_1HZ_RPM/60)
-#define TICKS_TO_RPM(TICKS) (TICKS*60/SYNCHRO_TICKS_AT_1HZ_RPM)
+#define TICKS_TO_RPM(TICKS) ((uint32_t)TICKS*60/SYNCHRO_TICKS_AT_1HZ_RPM)
 
 typedef enum screen_index_en {
     SCREEN_MAIN_MENU = 0,
@@ -60,6 +60,7 @@ typedef enum setup_speed_rpm_en {
 
 extern volatile bool scr_redraw;
 extern volatile uint32_t synchro_counter;
-extern volatile uint16_t measured_rpm;
+extern volatile uint16_t measured_synchro_ticks;
+extern volatile uint32_t measured_rpm;
 
 #endif // __COMMON_H__

@@ -60,7 +60,8 @@ volatile bool motor_enabled = false;
 uint32_t motor_pwm_on_time = 50;
 
 volatile uint32_t synchro_counter = 0;
-volatile uint16_t measured_rpm = 0;
+volatile uint16_t measured_synchro_ticks = 0;
+volatile uint32_t measured_rpm = 0;
 
 //---------------------------------------------------------------------------------------
 
@@ -236,9 +237,26 @@ void loop() {
                     beep = 100; 
                     switch(screen_index)
                     {
-                        case SCREEN_MAIN_MENU: screen_index = SCREEN_PREVIEW; break;
-                        case SCREEN_PREVIEW: screen_index = SCREEN_WORKING; motor_enabled = true; synchro_counter = 0; break;
-                        case SCREEN_WORKING: screen_index = SCREEN_PREVIEW; motor_enabled = false; break;
+                        case SCREEN_MAIN_MENU: 
+                            screen_index = SCREEN_PREVIEW; 
+                            break;
+                        case SCREEN_PREVIEW: 
+                            screen_index = SCREEN_WORKING; 
+                            motor_pwm_on_time = 10;
+                            motor_enabled = true; 
+                            synchro_counter = 0; 
+                            break;
+                        case SCREEN_WORKING: 
+                            if(motor_pwm_on_time < 90)
+                            {
+                                motor_pwm_on_time += 90;
+                            }
+                            else
+                            {
+                                screen_index = SCREEN_PREVIEW; 
+                                motor_enabled = false; 
+                            }
+                            break;
                     } 
                     scr_clear = true;
                     scr_redraw = true;

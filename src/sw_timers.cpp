@@ -10,7 +10,7 @@ volatile uint8_t faded_blink = 0;
 
 void rpm_measure()
 {
-    measured_rpm = TICKS_TO_RPM(synchro_counter);
+    measured_synchro_ticks = synchro_counter;
     synchro_counter = 0;
 }
 
