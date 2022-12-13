@@ -62,5 +62,7 @@ extern volatile bool scr_redraw;
 extern volatile uint32_t synchro_counter;
 extern volatile uint16_t measured_synchro_ticks;
 extern volatile uint32_t measured_rpm;
+extern uint32_t motor_pwm_on_time;
+extern uint16_t speed_rpm;
 
 #endif // __COMMON_H__

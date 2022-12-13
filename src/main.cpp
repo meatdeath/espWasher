@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <MCP23017.h>
 #include <OneWire.h>
@@ -5,8 +6,9 @@
 #include <Wire.h>
 #include <MPU6050_tockn.h>
 
-#include "lg240644-s8.h"
 #include "common.h"
+#include "motor_pid.h"
+#include "lg240644-s8.h"
 #include "screens.h"
 #include "sw_timers.h"
 #include "program.h"
@@ -62,6 +64,8 @@ uint32_t motor_pwm_on_time = 50;
 volatile uint32_t synchro_counter = 0;
 volatile uint16_t measured_synchro_ticks = 0;
 volatile uint32_t measured_rpm = 0;
+
+uint16_t speed_rpm = 0;
 
 //---------------------------------------------------------------------------------------
 
@@ -128,6 +132,8 @@ void setup() {
 
     attachInterrupt(ZC_PIN, ZeroCrossing, FALLING);
     attachInterrupt(SYNCHRO_PIN, SynchroCounting, FALLING);
+
+    pidInit(1.0,0.0,0.0);
 }
 
 //---------------------------------------------------------------------------------------
@@ -198,7 +204,16 @@ void loop() {
                             if(wash_mode_index == WASH_MODE_NUM) 
                                 wash_mode_index = 0;
                             break;
-                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_PREVIEW: 
+                            scr_redraw = false; 
+                            scr_clear = false; 
+                            break;
+                        case SCREEN_WORKING:
+                            if(motor_pwm_on_time < 90)
+                            {
+                                motor_pwm_on_time += 10;
+                            }
+                            break;
                     }
                 }
 
@@ -214,7 +229,16 @@ void loop() {
                             else
                                 wash_mode_index--;
                             break;
-                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_PREVIEW: 
+                            scr_redraw = false; 
+                            scr_clear = false; 
+                            break;
+                        case SCREEN_WORKING:
+                            if(motor_pwm_on_time > 10)
+                            {
+                                motor_pwm_on_time -= 10;
+                            }
+                            break;
                     }
                     scr_redraw = true;
                 }
@@ -245,17 +269,11 @@ void loop() {
                             motor_pwm_on_time = 10;
                             motor_enabled = true; 
                             synchro_counter = 0; 
+                            pidReset();
                             break;
                         case SCREEN_WORKING: 
-                            if(motor_pwm_on_time < 90)
-                            {
-                                motor_pwm_on_time += 90;
-                            }
-                            else
-                            {
-                                screen_index = SCREEN_PREVIEW; 
-                                motor_enabled = false; 
-                            }
+                            screen_index = SCREEN_PREVIEW; 
+                            motor_enabled = false; 
                             break;
                     } 
                     scr_clear = true;
@@ -337,6 +355,20 @@ void loop() {
         delay(beep);
         BUZER_OFF();
         beep = 0;
+    }
+
+    if(swTimerIsTriggered(SW_TIMER_MOTOR_CTL,true)) {
+        if (motor_pwm_on_time == 90) speed_rpm = 60;
+        if (motor_pwm_on_time == 80) speed_rpm = 120;
+        if (motor_pwm_on_time == 70) speed_rpm = 180;
+        if (motor_pwm_on_time == 60) speed_rpm = 240;
+        if (motor_pwm_on_time == 50) speed_rpm = 300;
+        if (motor_pwm_on_time == 40) speed_rpm = 400;
+        if (motor_pwm_on_time == 30) speed_rpm = 600;
+        if (motor_pwm_on_time == 20) speed_rpm = 800;
+        if (motor_pwm_on_time == 10) speed_rpm = 1000;
+        double pid_output = pidCompute(RPM_TO_TICKS(speed_rpm), measured_synchro_ticks);
+        motor_pwm_on_time = map(pid_output, 0, RPM_TO_TICKS(1000), 0, 100);
     }
 
     if(scr_redraw) {

@@ -180,18 +180,16 @@ void screen_preview(uint8_t mode)
 
 void screen_working(uint8_t mode)
 {
-    sprintf(tmp_str, "Test motor speed... %drpm   ", 0);
+    sprintf(tmp_str, "Test motor speed... %drpm   ", speed_rpm);
     lcd_print_font(0, SCR_Y_LINE0, tmp_str, &font[FONT_SMALL], SCR_COLOR_WHITE, SCR_COLOR_BLACK);
-    
-    sprintf(tmp_str, "Actual ticks: %d   ", measured_synchro_ticks);
-    lcd_print_font(0, SCR_Y_LINE1, tmp_str, &font[FONT_SMALL], SCR_COLOR_WHITE, SCR_COLOR_BLACK);
     
     measured_rpm = TICKS_TO_RPM(measured_synchro_ticks);
     sprintf(tmp_str, "Actual rpm: %d   ", measured_rpm);
     lcd_print_font(0, SCR_Y_LINE2, tmp_str, &font[FONT_SMALL], SCR_COLOR_WHITE, SCR_COLOR_BLACK);
+    
+    sprintf(tmp_str, "Actual ticks: %d   ", measured_synchro_ticks);
+    lcd_print_font(0, SCR_Y_LINE1, tmp_str, &font[FONT_SMALL], SCR_COLOR_WHITE, SCR_COLOR_BLACK);
 
-    sprintf(tmp_str, "Time left... %d second(s)   ", 0);
-    lcd_print_font(0, SCR_Y_LINE3, tmp_str, &font[FONT_SMALL], SCR_COLOR_WHITE, SCR_COLOR_BLACK);
 }
 
 //---------------------------------------------------------------------------------------
