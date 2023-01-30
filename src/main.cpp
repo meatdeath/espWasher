@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <MCP23017.h>
 #include <OneWire.h>
@@ -5,8 +6,9 @@
 #include <Wire.h>
 #include <MPU6050_tockn.h>
 
-#include "lg240644-s8.h"
 #include "common.h"
+#include "motor_pid.h"
+#include "lg240644-s8.h"
 #include "screens.h"
 #include "sw_timers.h"
 #include "program.h"
@@ -40,12 +42,16 @@
 
 #define BUTTON_FILTER_LIMIT 2
 
+//#define GYRO_ENABLE
+
 //---------------------------------------------------------------------------------------
 
 MCP23017 mcp[2] = { MCP23017(0x20), MCP23017(0x21) };
 OneWire oneWire(ONE_WIRE_BUS);
 DS18B20 sensor(&oneWire);
+#ifdef GYRO_ENABLE
 MPU6050 mpu6050(Wire);
+#endif
 
 volatile bool scr_redraw = true;
 bool scr_clear = true;
@@ -62,6 +68,9 @@ uint32_t motor_pwm_on_time = 50;
 volatile uint32_t synchro_counter = 0;
 volatile uint16_t measured_synchro_ticks = 0;
 volatile uint32_t measured_rpm = 0;
+
+uint16_t speed_rpm = 0;
+uint8_t motor_speed_index = 0;
 
 //---------------------------------------------------------------------------------------
 
@@ -85,8 +94,10 @@ void setup() {
     lcd_clr_screen();
     lcd_print_font(90, 24, "Загрузка...",  &font[FONT_SMALL], 15, 0);
 
+#ifdef GYRO_ENABLE
     mpu6050.begin();
     mpu6050.calcGyroOffsets(true);
+#endif
     mcp[0].init();
     mcp[1].init();
 
@@ -127,7 +138,9 @@ void setup() {
     pinMode(SYNCHRO_PIN, INPUT_PULLUP);
 
     attachInterrupt(ZC_PIN, ZeroCrossing, FALLING);
-    attachInterrupt(SYNCHRO_PIN, SynchroCounting, RISING);
+    attachInterrupt(SYNCHRO_PIN, SynchroCounting, FALLING);
+
+    pidInit(4,0.001,0);
 }
 
 //---------------------------------------------------------------------------------------
@@ -138,9 +151,11 @@ void loop() {
     static float old_temperature = -273;
     uint16_t beep = 0;
     
-    mpu6050.update();
     //if(swTimerIsTriggered(SW_TIMER_ACCELEROMETER_UPDATE,true)) {
     if(0){
+#ifdef GYRO_ENABLE
+        mpu6050.update();
+#endif
         Serial.println("=======================================================");
         if(sensor.isConversionComplete()) {
             float t = sensor.getTempC();
@@ -152,6 +167,8 @@ void loop() {
             }
             sensor.requestTemperatures();
         }
+
+#ifdef GYRO_ENABLE
         Serial.print("temp : ");Serial.println(mpu6050.getTemp());
         Serial.print("accX : ");Serial.print(mpu6050.getAccX());
         Serial.print("\taccY : ");Serial.print(mpu6050.getAccY());
@@ -171,6 +188,7 @@ void loop() {
         Serial.print("angleX : ");Serial.print(mpu6050.getAngleX());
         Serial.print("\tangleY : ");Serial.print(mpu6050.getAngleY());
         Serial.print("\tangleZ : ");Serial.println(mpu6050.getAngleZ());
+#endif
         Serial.println("=======================================================\n");
     }
 
@@ -198,7 +216,16 @@ void loop() {
                             if(wash_mode_index == WASH_MODE_NUM) 
                                 wash_mode_index = 0;
                             break;
-                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_PREVIEW: 
+                            scr_redraw = false; 
+                            scr_clear = false; 
+                            break;
+                        case SCREEN_WORKING:
+                            if(motor_speed_index < 9)
+                            {
+                                motor_speed_index++;
+                            }
+                            break;
                     }
                 }
 
@@ -214,7 +241,16 @@ void loop() {
                             else
                                 wash_mode_index--;
                             break;
-                        case SCREEN_PREVIEW: scr_redraw = false; scr_clear = false; break;
+                        case SCREEN_PREVIEW: 
+                            scr_redraw = false; 
+                            scr_clear = false; 
+                            break;
+                        case SCREEN_WORKING:
+                            if(motor_speed_index > 1)
+                            {
+                                motor_speed_index--;
+                            }
+                            break;
                     }
                     scr_redraw = true;
                 }
@@ -243,8 +279,10 @@ void loop() {
                         case SCREEN_PREVIEW: 
                             screen_index = SCREEN_WORKING; 
                             motor_pwm_on_time = 10;
+                            motor_speed_index = 1;
                             motor_enabled = true; 
                             synchro_counter = 0; 
+                            pidReset();
                             break;
                         case SCREEN_WORKING: 
                             if(motor_pwm_on_time < 90)
@@ -255,6 +293,7 @@ void loop() {
                             {
                                 screen_index = SCREEN_PREVIEW; 
                                 motor_enabled = false; 
+                                digitalWrite(MOTOR_PWM_PIN, 0);
                             }
                             break;
                     } 
@@ -337,6 +376,26 @@ void loop() {
         delay(beep);
         BUZER_OFF();
         beep = 0;
+    }
+
+    if(motor_enabled && swTimerIsTriggered(SW_TIMER_MOTOR_CTL,true)) {
+        if (motor_speed_index == 1) speed_rpm = 60;
+        if (motor_speed_index == 2) speed_rpm = 120;
+        if (motor_speed_index == 3) speed_rpm = 180;
+        if (motor_speed_index == 4) speed_rpm = 240;
+        if (motor_speed_index == 5) speed_rpm = 300;
+        if (motor_speed_index == 6) speed_rpm = 400;
+        if (motor_speed_index == 7) speed_rpm = 600;
+        if (motor_speed_index == 8) speed_rpm = 800;
+        if (motor_speed_index == 9) speed_rpm = 1000;
+        double pid_output = pidCompute(RPM_TO_TICKS(speed_rpm)/10, measured_synchro_ticks);
+        int32_t corr_output = (int16_t)pid_output;
+        if (corr_output <= 0) corr_output = 1;
+        if (corr_output > 1000 ) corr_output = 1000;
+        motor_pwm_on_time = map(corr_output, 1, RPM_TO_TICKS(1000)/10, 1, 100);
+        static char tmp_str[100];
+        sprintf(tmp_str, "PID: Set=%d Input= %d Output=%f Corr_Out=%d Pwm=%d", RPM_TO_TICKS(speed_rpm)/10, measured_synchro_ticks, pid_output, corr_output, motor_pwm_on_time);
+        Serial.println(tmp_str);
     }
 
     if(scr_redraw) {

@@ -47,6 +47,14 @@ volatile soft_timer_t sw_timer[SW_TIMER_MAX] = {
         .autoupdate = true,
         .updatetime = SW_TIMEOUT_1S,
         .downcounter = SW_TIMEOUT_1S,
+        .callback = NULL
+    },
+    {   // SW_TIMER_MOTOR_CTL
+        .enable = true,
+        .triggered = false,
+        .autoupdate = true,
+        .updatetime = 1000,
+        .downcounter = 1000,
         .callback = &rpm_measure
     },
     {
