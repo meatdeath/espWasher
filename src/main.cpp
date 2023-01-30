@@ -127,7 +127,7 @@ void setup() {
     pinMode(SYNCHRO_PIN, INPUT_PULLUP);
 
     attachInterrupt(ZC_PIN, ZeroCrossing, FALLING);
-    attachInterrupt(SYNCHRO_PIN, SynchroCounting, FALLING);
+    attachInterrupt(SYNCHRO_PIN, SynchroCounting, RISING);
 }
 
 //---------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ void loop() {
                         case SCREEN_WORKING: 
                             if(motor_pwm_on_time < 90)
                             {
-                                motor_pwm_on_time += 90;
+                                motor_pwm_on_time += 10;
                             }
                             else
                             {
